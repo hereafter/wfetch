@@ -7,7 +7,7 @@ class WInfoFetcher
 {
 public:
 	wstring Title();
-	wstring Underline();
+	wstring Underline(int count=0);
 
 	wstring Distro();
 	wstring Model();
@@ -31,4 +31,9 @@ public:
 	wstring Locale();
 
 	wstring Cols();
+
+
+private:
+	wstring UserName();
+	wstring HostName();
 };
