@@ -6,10 +6,13 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{82BD4759-500C-477A-A21E-2FBA5FCC5BAD}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wfetch", "wfetch\wfetch.vcxproj", "{55A6BF38-84DD-47BE-9766-310AD5E2B05D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F183675B-ED8F-4ECD-AF9A-0FC8717B2DF0} = {F183675B-ED8F-4ECD-AF9A-0FC8717B2DF0}
+	EndProjectSection
 EndProject
 Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "wfetch-package", "wfetch-package\wfetch-package.wapproj", "{CA9EF0E4-8689-4B78-81FB-D75202F58637}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wftech-core", "wftech-core\wftech-core.vcxproj", "{F183675B-ED8F-4ECD-AF9A-0FC8717B2DF0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wfetch-core", "wfetch-core\wfetch-core.vcxproj", "{F183675B-ED8F-4ECD-AF9A-0FC8717B2DF0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
