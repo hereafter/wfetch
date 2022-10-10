@@ -19,6 +19,9 @@ int main()
     ss << fetcher.Title().c_str() << endl;
     ss << fetcher.Underline().c_str() << endl;
     ss << "OS: " <<  fetcher.Distro().c_str() << endl;
+    ss << "Kernel: " << fetcher.Kernel().c_str() << endl;
+    ss << "Model: " << fetcher.Model().c_str() << endl;
+    ss << "Uptime: " << fetcher.Uptime().c_str() << endl;
     
     wprintf(ss.str().c_str());
 

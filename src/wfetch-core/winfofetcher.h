@@ -1,5 +1,6 @@
 #pragma once
 #include <WbemIdl.h>
+#include <atlbase.h>
 
 using namespace std;
 using namespace winrt;
@@ -42,7 +43,7 @@ public:
 	HRESULT QueryInstanceProperties(
 		const TCHAR* className,
 		vector<wstring> const& names,
-		vector<wstring>& values
+		vector<CComVariant>& values
 	);
 
 private:
@@ -50,6 +51,8 @@ private:
 	wstring UserName();
 	wstring HostName();
 
+private:
+	void FillStringValues(wstringstream& ss, vector<CComVariant> const& values);
 
 private:
 	com_ptr<IWbemServices> _wbemServices;
