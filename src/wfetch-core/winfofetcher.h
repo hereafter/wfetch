@@ -53,6 +53,8 @@ private:
 
 private:
 	void FillStringValues(wstringstream& ss, vector<CComVariant> const& values);
+	
+	int Execute(const TCHAR* cmd, const TCHAR* args, vector<wstring>& outputs);
 
 private:
 	com_ptr<IWbemServices> _wbemServices;

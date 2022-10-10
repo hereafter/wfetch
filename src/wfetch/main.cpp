@@ -22,6 +22,7 @@ int main()
     ss << "Kernel: " << fetcher.Kernel().c_str() << endl;
     ss << "Model: " << fetcher.Model().c_str() << endl;
     ss << "Uptime: " << fetcher.Uptime().c_str() << endl;
+    ss << "Packages: " << fetcher.Packages().c_str() << endl;
     
     wprintf(ss.str().c_str());
 

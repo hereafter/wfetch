@@ -2,6 +2,9 @@
 #include "winfofetcher.h"
 #include <chrono>
 #include <sstream>
+#include <ShlObj.h>
+#include <Shlwapi.h>
+#include <shellapi.h>
 
 using namespace std;
 using namespace std::chrono;
@@ -172,6 +175,20 @@ wstring WInfoFetcher::Uptime()
 	return ss.str();
 }
 
+wstring WInfoFetcher::Packages()
+{
+	wstringstream ss;
+
+	vector<wstring> outputs;
+	auto code=this->Execute(L"winget", L"list -s winget", outputs);
+	if (code < 0) return ss.str();
+
+
+
+
+	return ss.str();
+}
+
 
 HRESULT WInfoFetcher::Initialize()
 {
@@ -250,6 +267,28 @@ HRESULT WInfoFetcher::QueryInstanceProperties(
 }
 
 
+int WInfoFetcher::Execute(const TCHAR* cmd, const TCHAR* args, vector<wstring>& outputs)
+{
+	SHELLEXECUTEINFO info = { 0 };
+	info.cbSize = sizeof(info);
+	info.lpFile = cmd;
+	info.lpVerb = L"open";
+	info.lpParameters = args;
+	info.nShow = SW_HIDE;
+	info.fMask = SEE_MASK_NOZONECHECKS | SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS;
+	ShellExecuteEx(&info);
+	auto h = info.hProcess;
+
+	DWORD code = 0;
+	::GetExitCodeProcess(h, &code);
+	
+
+	
+
+	return 0;
+}
+
+
 void WInfoFetcher::FillStringValues(wstringstream& ss, vector<CComVariant> const& values)
 {
 	for (auto&& v : values)
@@ -265,3 +304,4 @@ void WInfoFetcher::FillStringValues(wstringstream& ss, vector<CComVariant> const
 		}
 	}
 }
+
