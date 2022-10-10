@@ -16,13 +16,11 @@
       <Filter>Other Files</Filter>
     </ClInclude>
     <ClInclude Include="winfofetcher.h" />
-    <ClInclude Include="wquerysink.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
       <Filter>Other Files</Filter>
     </ClCompile>
     <ClCompile Include="winfofetcher.cpp" />
-    <ClCompile Include="wquerysink.cpp" />
   </ItemGroup>
 </Project>

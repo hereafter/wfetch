@@ -18,6 +18,7 @@ int main()
     wstringstream ss;
     ss << fetcher.Title().c_str() << endl;
     ss << fetcher.Underline().c_str() << endl;
+    ss << "OS: " <<  fetcher.Distro().c_str() << endl;
     
     wprintf(ss.str().c_str());
 

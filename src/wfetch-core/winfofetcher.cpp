@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "winfofetcher.h"
+#include <atlbase.h>
 
 using namespace winrt;
 using namespace winrt::Windows::Foundation;
@@ -59,12 +60,19 @@ wstring WInfoFetcher::Underline(int count)
 
 wstring WInfoFetcher::Distro()
 {
-	auto&& s = _wbemServices.get();
-	
-	
-	
-
 	wstringstream ss;
+
+	vector<wstring> names = { L"Caption", L"OSArchitecture" };
+	vector<wstring> values = { };
+
+	HRESULT hr = NOERROR;
+	hr = this->QueryInstanceProperties(L"Win32_OperatingSystem", names, values);
+	if (SUCCEEDED(hr))
+	{
+		ss << values[0].c_str() << " " << values[1].c_str();
+	}
+
+	
 	return ss.str();
 }
 
@@ -91,6 +99,56 @@ BAIL:
 	if (FAILED(hr))
 	{
 		_wbemServices = nullptr;
+	}
+	return hr;
+}
+
+HRESULT WInfoFetcher::QueryInstanceProperties(
+	const TCHAR* className,
+	vector<wstring> const& names,
+	vector<wstring>& values)
+{
+	HRESULT hr = NOERROR;
+	auto s = _wbemServices.get();
+	if (s == nullptr) 
+	{
+		hr=this->Initialize();
+		if (FAILED(hr)) return hr;
+		s = _wbemServices.get();
+	}
+
+	com_ptr<IEnumWbemClassObject> objs;
+	com_ptr<IWbemClassObject> obj;
+
+	wstringstream qss;
+	qss << "SELECT * FROM " << className;
+	auto qs = qss.str();
+	hr = s->ExecQuery(
+		BSTR(L"WQL"),
+		BSTR(qs.c_str()),
+		WBEM_FLAG_RETURN_IMMEDIATELY | WBEM_FLAG_FORWARD_ONLY,
+		nullptr,
+		objs.put()
+	);
+
+	if (FAILED(hr)) return hr;
+
+	ULONG uCode = 0;
+	while (SUCCEEDED(objs->Next(WBEM_INFINITE, 1,
+		obj.put(), &uCode)))
+	{
+		if (uCode == 0) break;
+
+		CComVariant vt;
+		for (auto&& n : names)
+		{
+			hr = obj->Get(n.c_str(), 0, &vt, 0, 0);
+			if (SUCCEEDED(hr))
+			{
+				values.push_back(vt.bstrVal);
+			}
+		}
+		vt.Clear();	
 	}
 	return hr;
 }

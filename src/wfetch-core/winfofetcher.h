@@ -39,6 +39,11 @@ public:
 
 public:
 	HRESULT Initialize();
+	HRESULT QueryInstanceProperties(
+		const TCHAR* className,
+		vector<wstring> const& names,
+		vector<wstring>& values
+	);
 
 private:
 	
