@@ -1,10 +1,15 @@
 #pragma once
-
+#include <WbemIdl.h>
 
 using namespace std;
+using namespace winrt;
 
 class WInfoFetcher
 {
+public:
+	WInfoFetcher();
+	~WInfoFetcher();
+
 public:
 	wstring Title();
 	wstring Underline(int count=0);
@@ -32,8 +37,15 @@ public:
 
 	wstring Cols();
 
+public:
+	HRESULT Initialize();
 
 private:
+	
 	wstring UserName();
 	wstring HostName();
+
+
+private:
+	com_ptr<IWbemServices> _wbemServices;
 };
