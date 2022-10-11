@@ -2,9 +2,6 @@
 #include "winfofetcher.h"
 #include <chrono>
 #include <sstream>
-#include <ShlObj.h>
-#include <Shlwapi.h>
-#include <shellapi.h>
 
 using namespace std;
 using namespace std::chrono;
@@ -63,46 +60,43 @@ wstring WInfoFetcher::Underline(int count)
 wstring WInfoFetcher::Distro()
 {
 	wstringstream ss;
-
-	vector<wstring> names = { L"Caption", L"OSArchitecture" };
-	vector<CComVariant> values = { };
-
+	vector<CComVariant> values;
 	HRESULT hr = NOERROR;
-	hr = this->QueryInstanceProperties(L"Win32_OperatingSystem", names, values);
-	if (SUCCEEDED(hr))
-	{
-		this->FillStringValues(ss, values);
-	}
+	hr = this->QueryInstanceProperties(
+		L"Win32_OperatingSystem", 
+		{ L"Caption", L"OSArchitecture" },
+		values);
+	if (FAILED(hr)) return ss.str();
+
+	this->FillStringValues(ss, values);
 	return ss.str();
 }
 wstring WInfoFetcher::Model()
 {
 	wstringstream ss;
-
-	vector<wstring> names = { L"Manufacturer", L"Model" };
 	vector<CComVariant> values = { };
 
 	HRESULT hr = NOERROR;
-	hr = this->QueryInstanceProperties(L"Win32_ComputerSystem", names, values);
-	if (SUCCEEDED(hr))
-	{
-		this->FillStringValues(ss, values);
-	}
+	hr = this->QueryInstanceProperties(
+		L"Win32_ComputerSystem", 
+		{L"Manufacturer", L"Model"},
+		values);
+	if (FAILED(hr)) return ss.str();
+	this->FillStringValues(ss, values);
 	return ss.str();
 }
 wstring WInfoFetcher::Kernel()
 {
 	wstringstream ss;
-
-	vector<wstring> names = { L"Version" };
 	vector<CComVariant> values = { };
-
 	HRESULT hr = NOERROR;
-	hr = this->QueryInstanceProperties(L"Win32_OperatingSystem", names, values);
-	if (SUCCEEDED(hr))
-	{
-		this->FillStringValues(ss, values);
-	}
+	hr = this->QueryInstanceProperties(
+		L"Win32_OperatingSystem",
+		{L"Version"}, 
+		values);
+	if (FAILED(hr)) return ss.str();
+
+	this->FillStringValues(ss, values);
 	return ss.str();
 }
 wstring WInfoFetcher::Uptime()
@@ -112,11 +106,10 @@ wstring WInfoFetcher::Uptime()
 	vector<CComVariant> values;
 	HRESULT hr = this->QueryInstanceProperties(
 		L"Win32_OperatingSystem",
-		vector<wstring>{L"LastBootUpTime", L"LocalDateTime"},
+		{L"LastBootUpTime", L"LocalDateTime"},
 		values
 	);
 	if (FAILED(hr)) return ss.str();
-	if (values.size() != 2) return ss.str();
 
 	wistringstream s1(values[0].bstrVal);
 	wistringstream s2(values[1].bstrVal);
@@ -127,16 +120,16 @@ wstring WInfoFetcher::Uptime()
 	
 	auto span=mktime(&t2) - mktime(&t1);
 
-	int days = span / 3600 / 24;
-	int hours = span % (3600 * 24) / 3600;
-	int mins = span % (3600) / 60;
+	int days = static_cast<int>(span / 3600 / 24);
+	int hours = static_cast<int>(span % (3600 * 24) / 3600);
+	int mins = static_cast<int>(span % (3600) / 60);
 
 
 	bool empty = true;
 	if (days > 0) 
 	{
 		ss << days;
-		if (days > 1)
+		if (days != 1)
 		{
 			ss << " days";
 		}
@@ -147,11 +140,11 @@ wstring WInfoFetcher::Uptime()
 		empty = false;
 	}
 
-	if (hours > 0)
+	if (!empty || hours > 0)
 	{
 		if (!empty) ss << ", ";
 		ss << hours;
-		if (hours > 1)
+		if (hours != 1)
 		{
 			ss << " hours";
 		}
@@ -162,19 +155,29 @@ wstring WInfoFetcher::Uptime()
 		empty = false;
 	}
 
-	if (!empty) ss << ", ";
-	ss << mins;
-	if (mins > 1)
+	if (!empty || mins > 0)
 	{
-		ss << " mins";
+		if (!empty) ss << ", ";
+		ss << mins;
+		if (mins != 1)
+		{
+			ss << " mins";
+		}
+		else
+		{
+			ss << " min";
+		}
+		empty = false;
 	}
-	else
+
+
+	if (empty)
 	{
-		ss << " min";
+		ss << "secs";
 	}
+
 	return ss.str();
 }
-
 wstring WInfoFetcher::Packages()
 {
 	wstringstream ss;
@@ -188,7 +191,143 @@ wstring WInfoFetcher::Packages()
 
 	return ss.str();
 }
+wstring WInfoFetcher::Shell()
+{
+	wstringstream ss;
+	return ss.str();
+}
+wstring WInfoFetcher::Resolution()
+{
+	vector<wstring> resolutions;
+	::EnumDisplayMonitors(nullptr, nullptr,
+		[](HMONITOR h, HDC dc, LPRECT lpRect, LPARAM lParam) {
+			auto&& resolutions = *(vector<wstring>*)lParam;
+			auto bounds = *lpRect;
+			wstringstream ss;
+			ss << (bounds.right - bounds.left) << "x";
+			ss << (bounds.bottom - bounds.top);
+			resolutions.push_back(ss.str());
+			return TRUE;
+		}, (LPARAM)(void*)&resolutions);
 
+	wstringstream ss;
+	this->FillStringValues(ss, resolutions, L", ");
+	return ss.str();
+}
+wstring WInfoFetcher::Term()
+{
+	wstringstream ss;
+	return ss.str();
+}
+wstring WInfoFetcher::TermFont()
+{
+	wstringstream ss;
+	return ss.str();
+}
+wstring WInfoFetcher::Cpu()
+{
+	wstringstream ss;
+	vector<CComVariant> values;
+	HRESULT hr = this->QueryInstanceProperties(
+		L"Win32_Processor",
+		{L"Name"},
+		values
+	);
+	if (FAILED(hr)) return ss.str();
+	ss << values[0].bstrVal;
+	return ss.str();
+}
+wstring WInfoFetcher::Gpu()
+{
+	wstringstream ss;
+	vector<CComVariant> values;
+	HRESULT hr = this->QueryInstanceProperties(
+		L"Win32_DisplayConfiguration",
+		{L"DeviceName"},
+		values
+	);
+	if (FAILED(hr)) return ss.str();
+	ss << values[0].bstrVal;
+	return ss.str();
+}
+
+wstring WInfoFetcher::Memory()
+{
+	wstringstream ss;
+
+	vector<CComVariant> values, values2;
+	HRESULT hr = this->QueryInstanceProperties(
+		L"Win32_OperatingSystem",
+		{L"FreePhysicalMemory"},
+		values
+	);
+	if (FAILED(hr)) return ss.str();
+	hr = this->QueryInstanceProperties(
+		L"Win32_ComputerSystem",
+		{ L"TotalPhysicalMemory" },
+		values2
+	);
+	if (FAILED(hr)) return ss.str();
+
+	int64_t size1=0, size2=0;
+	size1=stoll(values[0].bstrVal)*1024;
+	size2=stoll(values2[0].bstrVal);
+	auto size3 = size2 - size1;
+
+	ss << this->FormatMemorySize(size3).c_str();
+	ss << " / ";
+	ss << this->FormatMemorySize(size2).c_str();
+
+	return ss.str();
+}
+
+wstring WInfoFetcher::Battery()
+{
+	wstringstream ss;
+	return ss.str();
+}
+
+wstring WInfoFetcher::Font()
+{
+	wstringstream ss;
+	return ss.str();
+}
+
+wstring WInfoFetcher::Disk()
+{
+	wstringstream ss;
+	return ss.str();
+}
+
+wstring WInfoFetcher::LocalIp()
+{
+	wstringstream ss;
+	return ss.str();
+}
+
+wstring WInfoFetcher::PublicIp()
+{
+	wstringstream ss;
+	return ss.str();
+}
+
+wstring WInfoFetcher::Users()
+{
+	wstringstream ss;
+	return ss.str();
+}
+
+wstring WInfoFetcher::Locale()
+{
+	wstringstream ss;
+	return ss.str();
+}
+
+wstring WInfoFetcher::Cols()
+{
+	wstringstream ss;
+	return ss.str();
+}
 
 HRESULT WInfoFetcher::Initialize()
 {
@@ -266,42 +405,97 @@ HRESULT WInfoFetcher::QueryInstanceProperties(
 	return hr;
 }
 
-
 int WInfoFetcher::Execute(const TCHAR* cmd, const TCHAR* args, vector<wstring>& outputs)
 {
-	SHELLEXECUTEINFO info = { 0 };
-	info.cbSize = sizeof(info);
-	info.lpFile = cmd;
-	info.lpVerb = L"open";
-	info.lpParameters = args;
-	info.nShow = SW_HIDE;
-	info.fMask = SEE_MASK_NOZONECHECKS | SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS;
-	ShellExecuteEx(&info);
-	auto h = info.hProcess;
-
-	DWORD code = 0;
-	::GetExitCodeProcess(h, &code);
-	
-
-	
 
 	return 0;
 }
 
+void WInfoFetcher::FillStringValues(wstringstream& ss, 
+	vector<CComVariant> const& values,
+	const TCHAR* seperator)
+{
 
-void WInfoFetcher::FillStringValues(wstringstream& ss, vector<CComVariant> const& values)
+	vector<wstring> values2;
+	for (auto&& v : values) { values2.push_back(v.bstrVal); }
+	this->FillStringValues(ss, values2);
+}
+
+void WInfoFetcher::FillStringValues(wstringstream& ss, 
+	vector<wstring> const& values,
+	const TCHAR* seperator)
 {
 	for (auto&& v : values)
 	{
-		wstring text = v.bstrVal;
-		if (!text.empty())
+		if (!v.empty())
 		{
 			if (ss.tellp() != 0)
 			{
-				ss << " ";
+				ss << seperator;
 			}
-			ss << text.c_str();
+			ss << v.c_str();
 		}
 	}
 }
 
+
+wstring WInfoFetcher::FormatDiskSize(int64_t size)
+{
+	wstringstream ss;
+	if (size < 1024)
+	{
+		ss.precision(1);
+		ss << size << " Bytes";
+	}
+	else if (size >> 10 < 1024)
+	{
+		ss.precision(1);
+		ss << (size / 1024.0f) << "K";
+	}
+	else if (size >> 20 < 1024)
+	{
+		ss.precision(1);
+		ss << ((size >> 10) / 1024.0f) << "M";
+	}
+	else if (size >> 30 < 1024)
+	{
+		ss.precision(1);
+		ss << ((size >> 20) / 1024.0f) << "G";
+	}
+	else if (size >> 40 < 1024)
+	{
+		ss.precision(1);
+		ss << ((size >> 30) / 1024.0f) << "T";
+	}
+	else if (size >> 50 < 1024)
+	{
+		ss.precision(1);
+		ss << ((size >> 40) / 1024.0f) << "P";
+	}
+	else
+	{
+		ss.precision(1);
+		ss << ((size >> 50) / 1024.0f) << "E";
+	}
+
+	return ss.str();
+}
+
+wstring WInfoFetcher::FormatMemorySize(int64_t size)
+{
+	wstringstream ss;
+	if (size < 1024)
+	{
+		ss << size << "Bytes";
+	}
+	else if (size >> 10 < 1024)
+	{
+		ss << (size / 1024) << "KiB";
+	}
+	else
+	{
+		ss << ((size >> 10) / 1024) << "MiB";
+	}
+
+	return ss.str();
+}

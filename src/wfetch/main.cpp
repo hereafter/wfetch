@@ -23,6 +23,11 @@ int main()
     ss << "Model: " << fetcher.Model().c_str() << endl;
     ss << "Uptime: " << fetcher.Uptime().c_str() << endl;
     ss << "Packages: " << fetcher.Packages().c_str() << endl;
+    ss << "Shell: " << fetcher.Shell().c_str() << endl;
+    ss << "Resolution: " << fetcher.Resolution().c_str() << endl;
+    ss << "CPU: " << fetcher.Cpu().c_str() << endl;
+    ss << "GPU: " << fetcher.Gpu().c_str() << endl;
+    ss << "Memory: " << fetcher.Memory().c_str() << endl;
     
     wprintf(ss.str().c_str());
 

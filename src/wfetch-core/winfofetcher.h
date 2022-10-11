@@ -23,7 +23,7 @@ public:
 	wstring Shell();
 	wstring Resolution();
 	wstring Term();
-	wstring Term_font();
+	wstring TermFont();
 	wstring Cpu();
 	wstring Gpu();
 	wstring Memory();
@@ -31,8 +31,8 @@ public:
 	wstring Battery();
 	wstring Font();
 	wstring Disk();
-	wstring Local_ip();
-	wstring Public_ip();
+	wstring LocalIp();
+	wstring PublicIp();
 	wstring Users();
 	wstring Locale();
 
@@ -52,10 +52,17 @@ private:
 	wstring HostName();
 
 private:
-	void FillStringValues(wstringstream& ss, vector<CComVariant> const& values);
+	void FillStringValues(wstringstream& ss, 
+		vector<CComVariant> const& values,
+		const TCHAR* seperator = L" ");
+	void FillStringValues(wstringstream& ss, 
+		vector<wstring> const& values, 
+		const TCHAR* seperator=L" ");
 	
 	int Execute(const TCHAR* cmd, const TCHAR* args, vector<wstring>& outputs);
 
+	wstring FormatDiskSize(int64_t size);
+	wstring FormatMemorySize(int64_t size);
 private:
 	com_ptr<IWbemServices> _wbemServices;
 };
