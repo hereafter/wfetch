@@ -16,18 +16,19 @@ int main()
 
     WInfoFetcher fetcher;
     wstringstream ss;
-    ss << fetcher.Title().c_str() << endl;
-    ss << fetcher.Underline().c_str() << endl;
-    ss << "OS: " <<  fetcher.Distro().c_str() << endl;
-    ss << "Kernel: " << fetcher.Kernel().c_str() << endl;
-    ss << "Model: " << fetcher.Model().c_str() << endl;
-    ss << "Uptime: " << fetcher.Uptime().c_str() << endl;
-    ss << "Packages: " << fetcher.Packages().c_str() << endl;
-    ss << "Shell: " << fetcher.Shell().c_str() << endl;
-    ss << "Resolution: " << fetcher.Resolution().c_str() << endl;
-    ss << "CPU: " << fetcher.Cpu().c_str() << endl;
-    ss << "GPU: " << fetcher.Gpu().c_str() << endl;
-    ss << "Memory: " << fetcher.Memory().c_str() << endl;
+    ss << "\033[91m"<< fetcher.Title().c_str() << endl;
+    ss << "\033[0m" << fetcher.Underline().c_str() << endl;
+    ss << "\033[91mOS:\033[0m " <<  fetcher.Distro().c_str() << endl;
+    ss << "\033[91mKernel:\033[0m " << fetcher.Kernel().c_str() << endl;
+    ss << "\033[91mModel:\033[0m " << fetcher.Model().c_str() << endl;
+    ss << "\033[91mUptime:\033[0m " << fetcher.Uptime().c_str() << endl;
+    ss << "\033[91mPackages:\033[0m " << fetcher.Packages().c_str() << endl;
+    ss << "\033[91mShell:\033[0m " << fetcher.Shell().c_str() << endl;
+    ss << "\033[91mResolution:\033[0m " << fetcher.Resolution().c_str() << endl;
+    ss << "\033[91mCPU:\033[0m " << fetcher.Cpu().c_str() << endl;
+    ss << "\033[91mGPU:\033[0m " << fetcher.Gpu().c_str() << endl;
+    ss << "\033[91mMemory:\033[0m " << fetcher.Memory().c_str() << endl;
+    ss << "\033[91mFont:\033[0m " << fetcher.Font().c_str() << endl;
     
     wprintf(ss.str().c_str());
 

@@ -250,7 +250,6 @@ wstring WInfoFetcher::Gpu()
 	ss << values[0].bstrVal;
 	return ss.str();
 }
-
 wstring WInfoFetcher::Memory()
 {
 	wstringstream ss;
@@ -290,6 +289,7 @@ wstring WInfoFetcher::Battery()
 wstring WInfoFetcher::Font()
 {
 	wstringstream ss;
+	ss << "Segoe UI";
 	return ss.str();
 }
 
