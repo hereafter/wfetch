@@ -10,6 +10,67 @@ using namespace winrt;
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::System;
 
+#pragma region Logos
+constexpr const TCHAR* kWindows11LogoASCII = L""
+"${c6}\n"
+"################  ################\n"
+"################  ################\n"
+"################  ################\n"
+"################  ################\n"
+"################  ################\n"
+"################  ################\n"
+"################  ################\n"
+"								   \n"
+"################  ################\n"
+"################  ################\n"
+"################  ################\n"
+"################  ################\n"
+"################  ################\n"
+"################  ################\n"
+"################  ################\n";
+
+
+constexpr const TCHAR* kWindows10LogoASCII = L""
+"${cc}                                ..,\n"
+"                    ....,,:;+ccllll\n"
+"      ...,,+:;  cllllllllllllllllll\n"
+",cclllllllllll  lllllllllllllllllll\n"
+"llllllllllllll  lllllllllllllllllll\n"
+"llllllllllllll  lllllllllllllllllll\n"
+"llllllllllllll  lllllllllllllllllll\n"
+"llllllllllllll  lllllllllllllllllll\n"
+"llllllllllllll  lllllllllllllllllll\n"
+"\n"
+"llllllllllllll  lllllllllllllllllll\n"
+"llllllllllllll  lllllllllllllllllll\n"
+"llllllllllllll  lllllllllllllllllll\n"
+"llllllllllllll  lllllllllllllllllll\n"
+"llllllllllllll  lllllllllllllllllll\n"
+"`'ccllllllllll  lllllllllllllllllll\n"
+"       `' \\*::  :ccllllllllllllllll\n"
+"                       ````''*::cll\n"
+"                                 ``\n";
+
+constexpr const TCHAR* kWindowsLogoASCII=L""
+"${c1}        ,.=:!!t3Z3z.,\n"
+"       :tt:::tt333EE3\n"
+"${c1}       Et:::ztt33EEEL${c2} @Ee.,      ..,\n"
+"${c1}      ;tt:::tt333EE7${c2} ;EEEEEEttttt33#\n"
+"${c1}     :Et:::zt333EEQ.${c2} $EEEEEttttt33QL\n"
+"${c1}     it::::tt333EEF${c2} @EEEEEEttttt33F\n"
+"${c1}    ;3=*^```\"*4EEV${c2} :EEEEEEttttt33@.\n"
+"${c3}    ,.=::::!t=., ${c1}`${c2} @EEEEEEtttz33QF\n"
+"${c3}   ;::::::::zt33)${c2}   \"4EEEtttji3P*\n"
+"${c3}  :t::::::::tt33.${c4}:Z3z..${c2}  ``${c4} ,..g.\n"
+"${c3}  i::::::::zt33F${c4} AEEEtttt::::ztF\n"
+"${c3} ;:::::::::t33V${c4} ;EEEttttt::::t3\n"
+"${c3} E::::::::zt33L${c4} @EEEtttt::::z3F\n"
+"${c3}{3=*^```\"*4E3)${c4} ;EEEtttt:::::tZ`\n"
+"${c3}             `${c4} :EEEEtttt::::z7\n"
+"                 \"VEzjt:;;z>*`\n";
+
+#pragma endregion
+
 WInfoFetcher::WInfoFetcher()
 {
 	HRESULT hr=this->Initialize();
@@ -56,6 +117,11 @@ wstring WInfoFetcher::Underline(int count)
 		ss << "=";
 	}
 	return ss.str();
+}
+
+wstring WInfoFetcher::Logo()
+{
+	return kWindows10LogoASCII;
 }
 wstring WInfoFetcher::Distro()
 {
@@ -296,6 +362,33 @@ wstring WInfoFetcher::Font()
 wstring WInfoFetcher::Disk()
 {
 	wstringstream ss;
+	HRESULT hr = NOERROR;
+
+	vector<CComVariant> values;
+	hr = this->QueryInstanceProperties(L"Win32_LogicalDisk",
+		{L"DeviceId", L"FreeSpace", L"Size"},
+		values);
+	if (FAILED(hr)) return ss.str();
+
+	auto count = values.size() / 3;
+	
+	for (size_t i = 0; i < count; i++)
+	{
+		int offset = i * 3;
+		ss << "${c9}Disk " << values[offset].bstrVal;
+		ss << " ${c7}";
+
+		auto size1 = stoll(values[offset + 1].bstrVal);
+		auto size2 = stoll(values[offset + 2].bstrVal);
+
+		ss << this->FormatDiskSize(size1);
+		ss << " / ";
+		ss << this->FormatDiskSize(size2);
+
+		ss << endl;
+	}
+
+
 	return ss.str();
 }
 
@@ -439,42 +532,37 @@ void WInfoFetcher::FillStringValues(wstringstream& ss,
 }
 
 
-wstring WInfoFetcher::FormatDiskSize(int64_t size)
+wstring WInfoFetcher::FormatDiskSize(int64_t size, int precision)
 {
 	wstringstream ss;
+	ss.precision(precision);
+	ss << fixed;
 	if (size < 1024)
 	{
-		ss.precision(1);
 		ss << size << " Bytes";
 	}
 	else if (size >> 10 < 1024)
 	{
-		ss.precision(1);
 		ss << (size / 1024.0f) << "K";
 	}
 	else if (size >> 20 < 1024)
 	{
-		ss.precision(1);
 		ss << ((size >> 10) / 1024.0f) << "M";
 	}
 	else if (size >> 30 < 1024)
 	{
-		ss.precision(1);
 		ss << ((size >> 20) / 1024.0f) << "G";
 	}
 	else if (size >> 40 < 1024)
 	{
-		ss.precision(1);
 		ss << ((size >> 30) / 1024.0f) << "T";
 	}
 	else if (size >> 50 < 1024)
 	{
-		ss.precision(1);
 		ss << ((size >> 40) / 1024.0f) << "P";
 	}
 	else
 	{
-		ss.precision(1);
 		ss << ((size >> 50) / 1024.0f) << "E";
 	}
 

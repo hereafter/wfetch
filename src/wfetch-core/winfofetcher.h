@@ -15,6 +15,8 @@ public:
 	wstring Title();
 	wstring Underline(int count=0);
 
+	wstring Logo();
+
 	wstring Distro();
 	wstring Model();
 	wstring Kernel();
@@ -61,7 +63,7 @@ private:
 	
 	int Execute(const TCHAR* cmd, const TCHAR* args, vector<wstring>& outputs);
 
-	wstring FormatDiskSize(int64_t size);
+	wstring FormatDiskSize(int64_t size, int precison=0);
 	wstring FormatMemorySize(int64_t size);
 private:
 	com_ptr<IWbemServices> _wbemServices;
