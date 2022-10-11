@@ -114,7 +114,7 @@ wstring WInfoFetcher::Underline(int count)
 	wstringstream ss;
 	for (int i = 0; i < count; i++)
 	{
-		ss << "=";
+		ss << "-";
 	}
 	return ss.str();
 }
