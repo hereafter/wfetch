@@ -38,7 +38,7 @@ public:
 	wstring Users();
 	wstring Locale();
 
-	wstring Cols();
+	wstring Colors();
 
 public:
 	HRESULT Initialize();

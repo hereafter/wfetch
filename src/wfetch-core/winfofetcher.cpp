@@ -121,7 +121,7 @@ wstring WInfoFetcher::Underline(int count)
 
 wstring WInfoFetcher::Logo()
 {
-	return kWindows10LogoASCII;
+	return kWindows11LogoASCII;
 }
 wstring WInfoFetcher::Distro()
 {
@@ -416,9 +416,10 @@ wstring WInfoFetcher::Locale()
 	return ss.str();
 }
 
-wstring WInfoFetcher::Cols()
+wstring WInfoFetcher::Colors()
 {
 	wstringstream ss;
+	ss << (TCHAR)219;
 	return ss.str();
 }
 
@@ -584,6 +585,5 @@ wstring WInfoFetcher::FormatMemorySize(int64_t size)
 	{
 		ss << ((size >> 10) / 1024) << "MiB";
 	}
-
 	return ss.str();
 }
