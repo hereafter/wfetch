@@ -1,20 +1,17 @@
 #pragma once
 
-struct WFetchRendererChar
-{
-	INT x;
-	INT y;
-	INT forground;
-	INT background;
-};
+#include "wfechcharinfo.h"
+using namespace std;
 
 class WFetchRenderer
 {
 public:
 	WFetchRenderer();
+	WFetchRenderer(int cols, int rows);
 	~WFetchRenderer();
 
 public:
-
+	shared_ptr<WFetchCharInfo[]> Infos;
+	shared_ptr<TCHAR[]> Values;
 };
 

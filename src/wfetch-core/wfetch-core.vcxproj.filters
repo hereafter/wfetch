@@ -17,6 +17,7 @@
     </ClInclude>
     <ClInclude Include="winfofetcher.h" />
     <ClInclude Include="wfetchrenderer.h" />
+    <ClInclude Include="wfechcharinfo.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -24,5 +25,6 @@
     </ClCompile>
     <ClCompile Include="winfofetcher.cpp" />
     <ClCompile Include="wfetchrenderer.cpp" />
+    <ClCompile Include="wfechcharinfo.cpp" />
   </ItemGroup>
 </Project>

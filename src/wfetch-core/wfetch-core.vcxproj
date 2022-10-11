@@ -303,6 +303,7 @@
   <ItemGroup>
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="wfechcharinfo.h" />
     <ClInclude Include="wfetchrenderer.h" />
     <ClInclude Include="winfofetcher.h" />
   </ItemGroup>
@@ -317,6 +318,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="wfechcharinfo.cpp" />
     <ClCompile Include="wfetchrenderer.cpp" />
     <ClCompile Include="winfofetcher.cpp" />
   </ItemGroup>
