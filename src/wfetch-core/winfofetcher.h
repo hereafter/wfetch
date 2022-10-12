@@ -48,8 +48,9 @@ public:
 		vector<CComVariant>& values
 	);
 
+public:
+
 private:
-	
 	wstring UserName();
 	wstring HostName();
 
