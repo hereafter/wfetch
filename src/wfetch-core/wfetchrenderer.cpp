@@ -205,8 +205,49 @@ void WFetchRenderer::RenderToConsole()
 {
 	auto values = _values.get();
 
-	
+	auto gaps = 0;
+	bool hasContent = false;
+	auto rows = _rows;
+	auto cols = _columns;
 
+	for (int r = 0; r < rows; r++)
+	{
+		if (this->IsRowEmpty(r))
+		{
+			gaps++;
+			continue;
+		}
+
+		//fill in gaps
+		while (gaps > 0)
+		{
+			wcout << endl;
+			gaps--;
+		}
+
+		auto o = r * cols;
+		for (int c = 0; c < cols; c++)
+		{
+			auto leadings = 0;
+			auto&& info = _infos[o++];
+
+			auto v = info.Read();
+			if (v == 0)
+			{
+				leadings++;
+				continue;
+			}
+			
+			while (leadings > 0)
+			{
+				wcout << L' ';
+			}
+
+			wcout << v;
+		}
+
+		wcout << endl;
+	}
 
 }
 
@@ -222,20 +263,4 @@ bool WFetchRenderer::IsRowEmpty(int r) const
 		offset++;
 	}
 	return true;
-}
-
-int WFetchRenderer::GetUsedRowsCount() const
-{
-	int count = 0;
-	bool hasContent = false;
-	auto rows = _rows;
-
-	for (int r = 0; r < rows; r++)
-	{
-
-	}
-
-
-	
-	return 0;
 }

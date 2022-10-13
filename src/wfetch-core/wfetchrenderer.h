@@ -41,7 +41,7 @@ private:
 
 private:
 	bool IsRowEmpty(int r) const;
-	int GetUsedRowsCount() const;
+
 
 private:
 	int _cursorX;

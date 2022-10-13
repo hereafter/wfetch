@@ -43,7 +43,7 @@ int main()
 
     auto info = ss.str();
     renderer.MoveTo(30, 0);
-    //renderer.WriteBlockString(info.c_str());
+    renderer.WriteBlockString(info.c_str());
 
     renderer.RenderToConsole();
 
