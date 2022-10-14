@@ -42,6 +42,7 @@ private:
 
 private:
 	bool IsRowEmpty(int r) const;
+	void ProcessColors(wstring const& controls);
 
 
 private:
@@ -51,5 +52,9 @@ private:
 	int _columns;
 	shared_ptr<WFetchCharInfo[]> _infos;
 	shared_ptr<TCHAR[]> _values;
+
+	map<wstring, int> _foregroundColors;
+	map<wstring, int> _backgroundColors;
+	int _defaultColor;
 };
 

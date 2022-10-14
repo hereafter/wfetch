@@ -44,7 +44,7 @@ int main()
     renderer.MoveTo(36, 0);
     renderer.WriteBlockString(info.c_str());
 
-    renderer.RenderToDebug();
+    //renderer.RenderToDebug();
     renderer.RenderToConsole();
 
 }

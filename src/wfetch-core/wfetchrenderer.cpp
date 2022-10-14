@@ -31,6 +31,38 @@ WFetchRenderer::WFetchRenderer(int cols, int rows):
 
 	_infos = infos;
 	_values = values;
+
+	map<wstring, int> colors1 = 
+	{
+		{L"c0", 0},  {L"c1", 3},  {L"c2", 2},  {L"c3", 3},
+		{L"c4", 4},  {L"c5", 5},  {L"c6", 6},  {L"c7", 7},
+		{L"c8", 8},  {L"c9", 9},  {L"ca", 10}, {L"cb", 11}, 
+		{L"cc", 12}, {L"cd", 13}, {L"ce", 14}, {L"cf", 15}
+	};
+
+	map<wstring, int> colors2 =
+	{
+		{L"b0",        0},  {L"b1", 0x0010+1},  {L"b2", 0x0010+2},  {L"b3", 0x0010+3},
+		{L"b4", 0x0010+4},  {L"b5", 0x0010+5},  {L"b6", 0x0010+6},  {L"b7", 0x0010+7},
+		{L"b8", 0x0010+8},  {L"b9", 0x0010+9},  {L"ba", 0x0010+10}, {L"bb", 0x0010+11},
+		{L"bc", 0x0010+12}, {L"bd", 0x0010+13}, {L"be", 0x0010+14}, {L"bf", 0x0010+15}
+	};
+
+	_foregroundColors = colors1;
+	_backgroundColors = colors2;
+
+	auto h = ::GetStdHandle(STD_OUTPUT_HANDLE);
+	if (h != nullptr)
+	{
+		CONSOLE_SCREEN_BUFFER_INFO info = { 0 };
+		::GetConsoleScreenBufferInfo(h, &info);
+		_defaultColor = info.wAttributes;
+	}
+	else
+	{
+		_defaultColor = 0;
+	}
+
 }
 
 WFetchRenderer::~WFetchRenderer()
@@ -115,19 +147,69 @@ void WFetchRenderer::WriteChar(TCHAR value)
 void WFetchRenderer::WriteString(const TCHAR* value)
 {
 	auto ch = *value;
+	wstringstream ss;
+	bool controls = false;
+	bool dollar = false;
+
+	wstring colors;
+
 	while (ch != 0)
 	{
+		if (controls)
+		{
+			if (ch == _T('}'))
+			{
+				controls = false;
+				colors = ss.str();
+				this->ProcessColors(colors);
+				ss.str(L"");
+				goto NEXT;
+			}
+			
+			ss << ch;
+			goto NEXT;
+		}
+		
+
+		if (ch == _T('$'))
+		{
+			dollar = true;
+			ss << ch;
+			goto NEXT;
+		}
+		else if (ch == _T('{'))
+		{
+			if (dollar)
+			{
+				controls = true;
+				ss.str(L"");
+				goto NEXT;
+			}
+		}
+
+
+		if (dollar)
+		{
+			dollar = false;
+		}
+
 		if (ch == _T('\n'))
 		{
 			this->MoveToNextLine();
 			this->MoveToLineBegin();
+			if (!colors.empty())
+			{
+				this->ProcessColors(colors);
+			}
 		}
 		else
 		{
 			this->WriteChar(ch);
 			this->MoveToNextCharacter();
 		}
+		
 
+	NEXT:
 		value++;
 		ch = *value;
 	}
@@ -137,12 +219,62 @@ void WFetchRenderer::WriteBlockString(const TCHAR* value)
 {
 	auto ch = *value;
 	auto x = this->CursorX();
+
+	wstringstream ss;
+	bool controls = false;
+	bool dollar = false;
+
+	wstring colors;
+
 	while (ch != 0)
-	{	
+	{
+		if (controls)
+		{
+			if (ch == _T('}'))
+			{
+				controls = false;
+				colors = ss.str();
+				this->ProcessColors(colors);
+
+				ss.str(L"");
+				goto NEXT;
+			}
+
+			ss << ch;
+			goto NEXT;
+		}
+
+
+		if (ch == _T('$'))
+		{
+			dollar = true;
+			ss << ch;
+			goto NEXT;
+		}
+		else if (ch == _T('{'))
+		{
+			if (dollar)
+			{
+				controls = true;
+				ss.str(L"");
+				goto NEXT;
+			}
+		}
+
+
+		if (dollar)
+		{
+			dollar = false;
+		}
+
 		if (ch == _T('\n'))
 		{
 			this->MoveToNextLine();
 			this->MoveTo(x, _cursorY);
+			if (!colors.empty())
+			{
+				this->ProcessColors(colors);
+			}
 		}
 		else
 		{
@@ -150,6 +282,8 @@ void WFetchRenderer::WriteBlockString(const TCHAR* value)
 			this->MoveToNextCharacter();
 		}
 
+
+	NEXT:
 		value++;
 		ch = *value;
 	}
@@ -175,6 +309,27 @@ void WFetchRenderer::ResetColors()
 	if (info == nullptr) return;
 	info->BackgroundColor(-1);
 	info->ForegroundColor(-1);
+}
+
+void WFetchRenderer::ProcessColors(wstring const& controls)
+{
+	auto info = this->GetCurrentCharInfo();
+	if (info == nullptr) return;
+
+	auto&& k = controls;
+	auto&& colors1 = _foregroundColors;
+	auto v1 = colors1.find(k);
+	if (v1 != colors1.end())
+	{
+		info->ForegroundColor(v1->second);
+	}
+
+	auto&& colors2 = _backgroundColors;
+	auto v2 = colors2.find(k);
+	if (v2 != colors2.end()) 
+	{
+		info->BackgroundColor(v2->second);
+	}
 }
 
 WFetchCharInfo* const& WFetchRenderer::GetCurrentCharInfo() const
@@ -236,6 +391,8 @@ void WFetchRenderer::RenderToConsole()
 	auto rows = _rows;
 	auto cols = _columns;
 
+	
+
 	for (int r = 0; r < rows; r++)
 	{
 		if (this->IsRowEmpty(r))
@@ -257,6 +414,21 @@ void WFetchRenderer::RenderToConsole()
 		{
 			auto&& info = _infos[o++];
 			auto v = info.Read();
+
+			if (info.IsColorChanging())
+			{
+				auto fc = info.ForegroundColor();
+				auto bc = info.BackgroundColor();
+
+				auto c = 0;
+				if (fc > 0) c += fc;
+				if (bc > 0) c += bc;
+				auto h = ::GetStdHandle(STD_OUTPUT_HANDLE);
+
+				if (c == 0) c = _defaultColor;
+				SetConsoleTextAttribute(h, c);
+			}
+
 			if (v == 0)
 			{
 				leadings++;

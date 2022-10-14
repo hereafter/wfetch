@@ -51,7 +51,7 @@ void WFetchCharInfo::Value(TCHAR* value)
 
 bool WFetchCharInfo::IsColorChanging() const
 {
-	return _fc >= 0 && _bc >= 0;
+	return _fc >= 0 || _bc >= 0;
 }
 
 int8_t WFetchCharInfo::ForegroundColor() const
