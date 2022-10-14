@@ -41,7 +41,7 @@ int main()
     ss << fetcher.Disk();
 
     auto info = ss.str();
-    renderer.MoveTo(36, 0);
+    renderer.MoveTo(38, 0);
     renderer.WriteBlockString(info.c_str());
 
     //renderer.RenderToDebug();
