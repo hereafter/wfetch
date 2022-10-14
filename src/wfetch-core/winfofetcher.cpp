@@ -12,7 +12,7 @@ using namespace winrt::Windows::System;
 
 #pragma region Logos
 constexpr const TCHAR* kWindows11LogoASCII = L""
-"${c6}\n"
+"${c1}\n"
 "################  ################\n"
 "################  ################\n"
 "################  ################\n"
@@ -31,7 +31,7 @@ constexpr const TCHAR* kWindows11LogoASCII = L""
 
 
 constexpr const TCHAR* kWindows10LogoASCII = L""
-"${cc}                                ..,\n"
+"${c1}                                ..,\n"
 "                    ....,,:;+ccllll\n"
 "      ...,,+:;  cllllllllllllllllll\n"
 ",cclllllllllll  lllllllllllllllllll\n"
@@ -375,8 +375,8 @@ wstring WInfoFetcher::Disk()
 	for (size_t i = 0; i < count; i++)
 	{
 		int offset = i * 3;
-		ss << "${c9}Disk " << values[offset].bstrVal;
-		ss << " ${c7}";
+		ss << "${c1}Disk " << values[offset].bstrVal;
+		ss << " ${c0}";
 
 		auto size1 = stoll(values[offset + 1].bstrVal);
 		auto size2 = stoll(values[offset + 2].bstrVal);

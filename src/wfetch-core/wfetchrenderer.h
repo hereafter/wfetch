@@ -31,6 +31,7 @@ public:
 	void WriteBlockString(const TCHAR* value);
 	
 public:
+	void RenderToDebug();
 	void RenderToConsole();
 
 private:

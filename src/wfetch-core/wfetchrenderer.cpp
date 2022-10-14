@@ -136,11 +136,13 @@ void WFetchRenderer::WriteString(const TCHAR* value)
 void WFetchRenderer::WriteBlockString(const TCHAR* value)
 {
 	auto ch = *value;
+	auto x = this->CursorX();
 	while (ch != 0)
 	{	
 		if (ch == _T('\n'))
 		{
 			this->MoveToNextLine();
+			this->MoveTo(x, _cursorY);
 		}
 		else
 		{
@@ -201,10 +203,34 @@ bool WFetchRenderer::IsCoordsWithinRange(int x, int y) const
 	return true;
 }
 
+void WFetchRenderer::RenderToDebug()
+{
+	auto rows = _rows;
+	auto cols = _columns;
+
+	auto values = _values.get();
+	for (int r = 0; r < rows; r++)
+	{
+		for (int c = 0; c < cols; c++)
+		{
+			auto v = *values; values++;
+			if (v == 0)
+			{
+				OutputDebugString(L" ");
+				continue;
+			}
+
+			wstringstream ss;
+			ss << v;
+			OutputDebugString(ss.str().c_str());
+			
+		}
+		OutputDebugString(L"\n");
+	}
+}
+
 void WFetchRenderer::RenderToConsole()
 {
-	auto values = _values.get();
-
 	auto gaps = 0;
 	bool hasContent = false;
 	auto rows = _rows;
@@ -226,11 +252,10 @@ void WFetchRenderer::RenderToConsole()
 		}
 
 		auto o = r * cols;
+		auto leadings = 0;
 		for (int c = 0; c < cols; c++)
 		{
-			auto leadings = 0;
 			auto&& info = _infos[o++];
-
 			auto v = info.Read();
 			if (v == 0)
 			{
@@ -241,6 +266,7 @@ void WFetchRenderer::RenderToConsole()
 			while (leadings > 0)
 			{
 				wcout << L' ';
+				leadings--;
 			}
 
 			wcout << v;
