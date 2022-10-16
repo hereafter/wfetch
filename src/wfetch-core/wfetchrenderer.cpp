@@ -332,13 +332,13 @@ void WFetchRenderer::ProcessColors(wstring const& controls)
 	}
 }
 
-WFetchCharInfo* const& WFetchRenderer::GetCurrentCharInfo() const
+WFetchCharInfo* const WFetchRenderer::GetCurrentCharInfo() const
 {
 	auto x = _cursorX;
 	auto y = _cursorY;
 	if (!this->IsCoordsWithinRange(x, y)) return nullptr;
-	auto&& infos = _infos;
-	return &infos[this->GetIndexFromCoords(x, y)];
+	auto p=&_infos[this->GetIndexFromCoords(x, y)];
+	return p;
 }
 
 int WFetchRenderer::GetValuesSize()

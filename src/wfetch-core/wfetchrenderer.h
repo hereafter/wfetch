@@ -36,7 +36,7 @@ public:
 
 private:
 	int GetIndexFromCoords(int x, int y) const;
-	WFetchCharInfo* const& GetCurrentCharInfo() const;
+	WFetchCharInfo* const GetCurrentCharInfo() const;
 	bool IsCoordsWithinRange(int x, int y) const;
 	int GetValuesSize();
 
