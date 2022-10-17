@@ -2,6 +2,8 @@
 #include <WbemIdl.h>
 #include <atlbase.h>
 
+#include "WFetchRenderBuffer.h"
+
 using namespace std;
 using namespace winrt;
 
@@ -48,7 +50,9 @@ public:
 		vector<CComVariant>& values
 	);
 
-public:
+public: //render to console
+	void RenderToConsole();
+	
 
 private:
 	wstring UserName();
@@ -58,6 +62,10 @@ private:
 	void FillStringValues(wstringstream& ss, 
 		vector<CComVariant> const& values,
 		const TCHAR* seperator = L" ");
+	void FillLabelValueLine(wstringstream& ss,
+		const TCHAR* label,
+		const TCHAR* value);
+
 	void FillStringValues(wstringstream& ss, 
 		vector<wstring> const& values, 
 		const TCHAR* seperator=L" ");
@@ -66,6 +74,9 @@ private:
 
 	wstring FormatDiskSize(int64_t size, int precison=0);
 	wstring FormatMemorySize(int64_t size);
+
+
 private:
 	com_ptr<IWbemServices> _wbemServices;
+	WFetchRenderBuffer _renderBuffer;
 };

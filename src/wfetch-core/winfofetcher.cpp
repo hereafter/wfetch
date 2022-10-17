@@ -449,6 +449,44 @@ BAIL:
 	return hr;
 }
 
+
+void WInfoFetcher::RenderToConsole()
+{
+	auto&& r = _renderBuffer;
+	r.Clear();
+
+	wstringstream ss;
+	auto logo = this->Logo();
+	ss << logo.c_str() << endl;
+
+	r.MoveTo(0, 0);
+	r.WriteString(logo.c_str());
+
+	ss.str(L"");
+
+	ss << "${c1}" << this->Title().c_str() << endl;
+	ss << "${c0}" << this->Underline().c_str() << endl;
+
+	this->FillLabelValueLine(ss, L"OS", this->Distro().c_str());
+	this->FillLabelValueLine(ss, L"Kernel", this->Kernel().c_str());
+	this->FillLabelValueLine(ss, L"Model", this->Model().c_str());
+	this->FillLabelValueLine(ss, L"Uptime", this->Uptime().c_str());
+	this->FillLabelValueLine(ss, L"Packages", this->Packages().c_str());
+	this->FillLabelValueLine(ss, L"Shell", this->Shell().c_str());
+	this->FillLabelValueLine(ss, L"Resolution:", this->Resolution().c_str());
+	this->FillLabelValueLine(ss, L"CPU:", this->Cpu().c_str());
+	this->FillLabelValueLine(ss, L"GPU:", this->Gpu().c_str());
+	this->FillLabelValueLine(ss, L"Memory:", this->Memory().c_str());
+	this->FillLabelValueLine(ss, L"Font:", this->Font().c_str());
+	ss << this->Disk();
+
+	auto info = ss.str();
+	r.MoveTo(38, 0);
+	r.WriteBlockString(info.c_str());
+
+	r.RenderToConsole();
+}
+
 HRESULT WInfoFetcher::QueryInstanceProperties(
 	const TCHAR* className,
 	vector<wstring> const& names,
@@ -513,6 +551,22 @@ void WInfoFetcher::FillStringValues(wstringstream& ss,
 	vector<wstring> values2;
 	for (auto&& v : values) { values2.push_back(v.bstrVal); }
 	this->FillStringValues(ss, values2);
+}
+
+void WInfoFetcher::FillLabelValueLine(wstringstream& ss,
+	const TCHAR* label,
+	const TCHAR* value) 
+{
+	if(label!=nullptr)
+	{
+		ss << "${c1}" << label << ":${c0} ";
+	}
+
+	if (value != nullptr)
+	{
+		ss << value;
+	}
+	ss << endl;
 }
 
 void WInfoFetcher::FillStringValues(wstringstream& ss, 
@@ -587,3 +641,4 @@ wstring WInfoFetcher::FormatMemorySize(int64_t size)
 	}
 	return ss.str();
 }
+
