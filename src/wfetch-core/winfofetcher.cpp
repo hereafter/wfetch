@@ -2,9 +2,11 @@
 #include "WInfoFetcher.h"
 #include <chrono>
 #include <sstream>
+#include <wil/resource.h>
 
 using namespace std;
 using namespace std::chrono;
+using namespace wil;
 
 using namespace winrt;
 using namespace winrt::Windows::Foundation;
@@ -248,12 +250,9 @@ wstring WInfoFetcher::Packages()
 {
 	wstringstream ss;
 
-	vector<wstring> outputs;
-	auto code=this->Execute(L"winget", L"list -s winget", outputs);
+	wstring output;
+	auto code=this->Execute(L"winget", L"list -s winget", output);
 	if (code < 0) return ss.str();
-
-
-
 
 	return ss.str();
 }
@@ -537,9 +536,25 @@ HRESULT WInfoFetcher::QueryInstanceProperties(
 	return hr;
 }
 
-int WInfoFetcher::Execute(const TCHAR* cmd, const TCHAR* args, vector<wstring>& outputs)
+int WInfoFetcher::Execute(const TCHAR* cmd, const TCHAR* args, wstring& outputs)
 {
+	unique_handle hOutputRead;
+	unique_handle hOutputWrite;
 
+	SECURITY_ATTRIBUTES sa{ 0 };
+	sa.nLength = sizeof(sa);
+	sa.bInheritHandle = FALSE;
+	sa.lpSecurityDescriptor = nullptr;
+	auto success=::CreatePipe(hOutputRead.put(), hOutputWrite.put(), &sa, 0);
+	if (!success) { throw hresult{ E_FAIL }; }
+	success = ::SetHandleInformation(hOutputRead.get(), HANDLE_FLAG_INHERIT, 0);
+	if (!success) { throw hresult{ E_FAIL }; }
+
+
+	success = CreateProcess(cmd, (LPWSTR)args,
+		nullptr, nullptr, false,
+		0, nullptr, nullptr,
+		nullptr, nullptr);
 	return 0;
 }
 

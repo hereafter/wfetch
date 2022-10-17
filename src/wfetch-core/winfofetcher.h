@@ -15,7 +15,7 @@ public:
 
 public:
 	wstring Title();
-	wstring Underline(int count=0);
+	wstring Underline(int count = 0);
 
 	wstring Logo();
 
@@ -46,7 +46,7 @@ public:
 	HRESULT Initialize();
 	HRESULT QueryInstanceProperties(
 		const TCHAR* className,
-		vector<wstring> const& names,
+		vector<wstring> const& names, 
 		vector<CComVariant>& values
 	);
 
@@ -70,7 +70,7 @@ private:
 		vector<wstring> const& values, 
 		const TCHAR* seperator=L" ");
 	
-	int Execute(const TCHAR* cmd, const TCHAR* args, vector<wstring>& outputs);
+	int Execute(const TCHAR* cmd, const TCHAR* args, wstring& output);
 
 	wstring FormatDiskSize(int64_t size, int precison=0);
 	wstring FormatMemorySize(int64_t size);
