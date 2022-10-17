@@ -1,15 +1,15 @@
 #pragma once
 
-#include "wfechcharinfo.h"
+#include "WFetchCharInfo.h"
 
 using namespace std;
 
-class WFetchRenderer
+class WFetchRenderBuffer
 {
 public:
-	WFetchRenderer();
-	WFetchRenderer(int cols, int rows);
-	~WFetchRenderer();
+	WFetchRenderBuffer();
+	WFetchRenderBuffer(int cols, int rows);
+	~WFetchRenderBuffer();
 
 public:
 	int CursorX() const;

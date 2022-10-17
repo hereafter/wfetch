@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "winfofetcher.h"
+#include "WInfoFetcher.h"
 #include <chrono>
 #include <sstream>
 

@@ -1,13 +1,13 @@
 #include "pch.h"
-#include "wfetchrenderer.h"
+#include "WFetchRenderBuffer.h"
 #include <iostream>
 #include <sstream>
 
-WFetchRenderer::WFetchRenderer():
+WFetchRenderBuffer::WFetchRenderBuffer():
 	WFetchRenderer(255, 100)
 {}
 
-WFetchRenderer::WFetchRenderer(int cols, int rows):
+WFetchRenderBuffer::WFetchRenderBuffer(int cols, int rows):
 	_rows(rows),
 	_columns(cols),
 	_cursorX(0),
@@ -65,20 +65,20 @@ WFetchRenderer::WFetchRenderer(int cols, int rows):
 
 }
 
-WFetchRenderer::~WFetchRenderer()
+WFetchRenderBuffer::~WFetchRenderBuffer()
 {}
 
-int WFetchRenderer::CursorX() const
+int WFetchRenderBuffer::CursorX() const
 {
 	return _cursorX;
 }
 
-int WFetchRenderer::CursorY() const
+int WFetchRenderBuffer::CursorY() const
 {
 	return _cursorY;
 }
 
-void WFetchRenderer::Clear()
+void WFetchRenderBuffer::Clear()
 {
 	auto&& values = _values.get();
 	if (values == nullptr) return;
@@ -93,13 +93,13 @@ void WFetchRenderer::Clear()
 	}
 }
 
-void WFetchRenderer::MoveTo(int x, int y)
+void WFetchRenderBuffer::MoveTo(int x, int y)
 {
 	_cursorX = x;
 	_cursorY = y;
 }
 
-void WFetchRenderer::MoveToNextCharacter()
+void WFetchRenderBuffer::MoveToNextCharacter()
 {
 	auto x = _cursorX + 1;
 	if (x >= _columns)
@@ -115,12 +115,12 @@ void WFetchRenderer::MoveToNextCharacter()
 	_cursorX = x;
 }
 
-void WFetchRenderer::MoveToLineBegin()
+void WFetchRenderBuffer::MoveToLineBegin()
 {
 	_cursorX = 0;
 }
 
-void WFetchRenderer::MoveToNextLine()
+void WFetchRenderBuffer::MoveToNextLine()
 {
 	auto y = _cursorY + 1;
 	if (y >= _rows)
@@ -130,21 +130,21 @@ void WFetchRenderer::MoveToNextLine()
 	_cursorY = y;
 }
 
-TCHAR WFetchRenderer::ReadChar()
+TCHAR WFetchRenderBuffer::ReadChar()
 {
 	auto info = this->GetCurrentCharInfo();
 	if (info == nullptr) return 0;
 	return info->Read();
 }
 
-void WFetchRenderer::WriteChar(TCHAR value)
+void WFetchRenderBuffer::WriteChar(TCHAR value)
 {
 	auto info = this->GetCurrentCharInfo();
 	if (info == nullptr) return;
 	info->Write(value);
 }
 
-void WFetchRenderer::WriteString(const TCHAR* value)
+void WFetchRenderBuffer::WriteString(const TCHAR* value)
 {
 	auto ch = *value;
 	wstringstream ss;
@@ -215,7 +215,7 @@ void WFetchRenderer::WriteString(const TCHAR* value)
 	}
 }
 
-void WFetchRenderer::WriteBlockString(const TCHAR* value)
+void WFetchRenderBuffer::WriteBlockString(const TCHAR* value)
 {
 	auto ch = *value;
 	auto x = this->CursorX();
@@ -289,21 +289,21 @@ void WFetchRenderer::WriteBlockString(const TCHAR* value)
 	}
 }
 
-void WFetchRenderer::SetForegroundColor(int8_t c)
+void WFetchRenderBuffer::SetForegroundColor(int8_t c)
 {
 	auto info = this->GetCurrentCharInfo();
 	if (info == nullptr) return;
 	info->ForegroundColor(c);
 }
 
-void WFetchRenderer::SetBackgroundColor(int8_t c)
+void WFetchRenderBuffer::SetBackgroundColor(int8_t c)
 {
 	auto info = this->GetCurrentCharInfo();
 	if (info == nullptr) return;
 	info->BackgroundColor(c);
 }
 
-void WFetchRenderer::ResetColors()
+void WFetchRenderBuffer::ResetColors()
 {
 	auto info = this->GetCurrentCharInfo();
 	if (info == nullptr) return;
@@ -311,7 +311,7 @@ void WFetchRenderer::ResetColors()
 	info->ForegroundColor(-1);
 }
 
-void WFetchRenderer::ProcessColors(wstring const& controls)
+void WFetchRenderBuffer::ProcessColors(wstring const& controls)
 {
 	auto info = this->GetCurrentCharInfo();
 	if (info == nullptr) return;
@@ -332,7 +332,7 @@ void WFetchRenderer::ProcessColors(wstring const& controls)
 	}
 }
 
-WFetchCharInfo* const WFetchRenderer::GetCurrentCharInfo() const
+WFetchCharInfo* const WFetchRenderBuffer::GetCurrentCharInfo() const
 {
 	auto x = _cursorX;
 	auto y = _cursorY;
@@ -341,24 +341,24 @@ WFetchCharInfo* const WFetchRenderer::GetCurrentCharInfo() const
 	return p;
 }
 
-int WFetchRenderer::GetValuesSize()
+int WFetchRenderBuffer::GetValuesSize()
 {
 	return sizeof(TCHAR) * _columns * _rows;
 }
 
-int WFetchRenderer::GetIndexFromCoords(int x, int y) const
+int WFetchRenderBuffer::GetIndexFromCoords(int x, int y) const
 {
 	return y * _columns + x;
 }
 
-bool WFetchRenderer::IsCoordsWithinRange(int x, int y) const
+bool WFetchRenderBuffer::IsCoordsWithinRange(int x, int y) const
 {
 	if (x < 0 || x >= _columns) return false;
 	if (y < 0 || y >= _rows) return false;
 	return true;
 }
 
-void WFetchRenderer::RenderToDebug()
+void WFetchRenderBuffer::RenderToDebug()
 {
 	auto rows = _rows;
 	auto cols = _columns;
@@ -384,7 +384,7 @@ void WFetchRenderer::RenderToDebug()
 	}
 }
 
-void WFetchRenderer::RenderToConsole()
+void WFetchRenderBuffer::RenderToConsole()
 {
 	auto gaps = 0;
 	bool hasContent = false;
@@ -450,7 +450,7 @@ void WFetchRenderer::RenderToConsole()
 }
 
 
-bool WFetchRenderer::IsRowEmpty(int r) const
+bool WFetchRenderBuffer::IsRowEmpty(int r) const
 {
 	auto columns = _columns;
 	auto offset = r * columns;

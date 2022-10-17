@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "wfechcharinfo.h"
+#include "WFetchCharInfo.h"
 
 WFetchCharInfo::WFetchCharInfo() :
 	_x(-1), _y(-1),

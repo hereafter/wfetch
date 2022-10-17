@@ -303,9 +303,9 @@
   <ItemGroup>
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="wfechcharinfo.h" />
-    <ClInclude Include="wfetchrenderer.h" />
-    <ClInclude Include="winfofetcher.h" />
+    <ClInclude Include="WFetchCharInfo.h" />
+    <ClInclude Include="WFetchRenderBuffer.h" />
+    <ClInclude Include="WInfoFetcher.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -318,9 +318,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="wfechcharinfo.cpp" />
-    <ClCompile Include="wfetchrenderer.cpp" />
-    <ClCompile Include="winfofetcher.cpp" />
+    <ClCompile Include="WFetchCharInfo.cpp" />
+    <ClCompile Include="WFetchRenderBuffer.cpp" />
+    <ClCompile Include="WInfoFetcher.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
