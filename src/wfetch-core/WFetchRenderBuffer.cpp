@@ -4,7 +4,7 @@
 #include <sstream>
 
 WFetchRenderBuffer::WFetchRenderBuffer():
-	WFetchRenderer(255, 100)
+	WFetchRenderBuffer(255, 100)
 {}
 
 WFetchRenderBuffer::WFetchRenderBuffer(int cols, int rows):

@@ -304,6 +304,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="WFetchCharInfo.h" />
+    <ClInclude Include="WFetchRendererConsole.h" />
     <ClInclude Include="WFetchRenderBuffer.h" />
     <ClInclude Include="WInfoFetcher.h" />
   </ItemGroup>
@@ -319,6 +320,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="WFetchCharInfo.cpp" />
+    <ClCompile Include="WFetchRendererConsole.cpp" />
     <ClCompile Include="WFetchRenderBuffer.cpp" />
     <ClCompile Include="WInfoFetcher.cpp" />
   </ItemGroup>

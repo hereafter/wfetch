@@ -18,6 +18,7 @@
     <ClInclude Include="WInfoFetcher.h" />
     <ClInclude Include="WFetchRenderBuffer.h" />
     <ClInclude Include="WFetchCharInfo.h" />
+    <ClInclude Include="WFetchRendererConsole.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -26,5 +27,6 @@
     <ClCompile Include="WInfoFetcher.cpp" />
     <ClCompile Include="WFetchRenderBuffer.cpp" />
     <ClCompile Include="WFetchCharInfo.cpp" />
+    <ClCompile Include="WFetchRendererConsole.cpp" />
   </ItemGroup>
 </Project>

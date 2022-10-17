@@ -4,8 +4,8 @@
 #include <map>
 #include <concrt.h>
 
-#include "winfofetcher.h"
-#include "wfetchrenderer.h"
+#include "WInfoFetcher.h"
+#include "WFetchRenderBuffer.h"
 
 using namespace winrt;
 using namespace winrt::Windows::Foundation;
@@ -16,7 +16,7 @@ int main()
     init_apartment();
 
     WInfoFetcher fetcher;
-    WFetchRenderer renderer;
+    WFetchRenderBuffer renderer;
     wstringstream ss;
     auto logo = fetcher.Logo();
     ss << logo.c_str() << endl;
