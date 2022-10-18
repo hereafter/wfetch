@@ -251,7 +251,8 @@ wstring WInfoFetcher::Packages()
 	wstringstream ss;
 
 	wstring output;
-	auto code=this->Execute(L"winget", L"list -s winget", output);
+	//auto code=this->Execute(L"winget", L"list -s winget", output);
+	auto code = this->Execute(L"where", L"winget", output);
 	if (code < 0) return ss.str();
 
 	return ss.str();
@@ -470,8 +471,7 @@ void WInfoFetcher::RenderToConsole()
 	this->FillLabelValueLine(ss, L"Kernel", this->Kernel().c_str());
 	this->FillLabelValueLine(ss, L"Model", this->Model().c_str());
 	this->FillLabelValueLine(ss, L"Uptime", this->Uptime().c_str());
-	this->FillLabelValueLine(ss, L"Packages", this->Packages().c_str());
-	this->FillLabelValueLine(ss, L"Shell", this->Shell().c_str());
+	//this->FillLabelValueLine(ss, L"Packages", this->Packages().c_str());
 	this->FillLabelValueLine(ss, L"Resolution:", this->Resolution().c_str());
 	this->FillLabelValueLine(ss, L"CPU:", this->Cpu().c_str());
 	this->FillLabelValueLine(ss, L"GPU:", this->Gpu().c_str());
@@ -538,8 +538,8 @@ HRESULT WInfoFetcher::QueryInstanceProperties(
 
 int WInfoFetcher::Execute(const TCHAR* cmd, const TCHAR* args, wstring& outputs)
 {
-	unique_handle hOutputRead;
-	unique_handle hOutputWrite;
+	unique_handle hOutputRead, hOutputWrite;
+	unique_handle hInputRead, hInputWrite;
 
 	SECURITY_ATTRIBUTES sa{ 0 };
 	sa.nLength = sizeof(sa);
@@ -547,15 +547,61 @@ int WInfoFetcher::Execute(const TCHAR* cmd, const TCHAR* args, wstring& outputs)
 	sa.lpSecurityDescriptor = nullptr;
 	auto success=::CreatePipe(hOutputRead.put(), hOutputWrite.put(), &sa, 0);
 	if (!success) { throw hresult{ E_FAIL }; }
+	success = ::CreatePipe(hInputRead.put(), hInputWrite.put(), &sa, 0);
+	if (!success) { throw hresult{ E_FAIL }; }
+
 	success = ::SetHandleInformation(hOutputRead.get(), HANDLE_FLAG_INHERIT, 0);
+	if (!success) { throw hresult{ E_FAIL }; }
+	success = ::SetHandleInformation(hInputRead.get(), HANDLE_FLAG_INHERIT, 0);
 	if (!success) { throw hresult{ E_FAIL }; }
 
 
-	success = CreateProcess(cmd, (LPWSTR)args,
-		nullptr, nullptr, false,
-		0, nullptr, nullptr,
-		nullptr, nullptr);
-	return 0;
+
+	PROCESS_INFORMATION pi = { 0 };
+	STARTUPINFO si = { 0 };
+
+	si.cb = sizeof(si);
+	si.hStdOutput = hOutputWrite.get();
+	si.hStdError = hOutputWrite.get();
+	si.hStdInput = hInputRead.get();
+	si.dwFlags |= STARTF_USESTDHANDLES;
+
+	wstringstream ss;
+	ss << cmd << " " << args;
+
+	success = CreateProcess(NULL, (LPWSTR)ss.str().c_str(),
+		nullptr, nullptr, TRUE, 0, nullptr, nullptr,
+		&si, &pi);
+	if (!success) { throw hresult{ E_FAIL }; }
+
+	unique_handle process{ pi.hProcess };
+	unique_handle thread { pi.hThread };
+
+
+	::WaitForSingleObject(pi.hProcess, INFINITE);
+
+	DWORD code=0;
+	::GetExitCodeProcess(pi.hProcess, &code);
+
+	ss.str(L"");
+	
+	auto size = 1024;
+	auto buffer = make_unique<BYTE[]>(size+2);	
+
+	auto fileSize = ::GetFileSize(hOutputRead.get(), nullptr);
+	
+	while(true)
+	{
+		DWORD read = 0;
+		ZeroMemory(buffer.get(), size + 2);
+		success = ReadFile(hOutputRead.get(), buffer.get(), size, &read, nullptr);
+		if (!success || read == 0) break;
+
+		ss << (TCHAR*)buffer.get();
+	}
+	outputs = ss.str();
+	return code;
+
 }
 
 void WInfoFetcher::FillStringValues(wstringstream& ss, 
