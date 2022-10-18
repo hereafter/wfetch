@@ -6,6 +6,8 @@
 
 #include "WInfoFetcher.h"
 
+#include <stdio.h>
+
 
 using namespace winrt;
 using namespace winrt::Windows::Foundation;
@@ -17,6 +19,9 @@ int main()
  
     WInfoFetcher fetcher;
     fetcher.RenderToConsole();
+
+    getc(stdin);
+    
     return 0;
 }
 

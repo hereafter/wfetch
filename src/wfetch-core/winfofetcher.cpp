@@ -282,6 +282,9 @@ wstring WInfoFetcher::Resolution()
 }
 wstring WInfoFetcher::Term()
 {
+	
+
+
 	wstringstream ss;
 	return ss.str();
 }
