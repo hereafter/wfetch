@@ -540,6 +540,8 @@ void WInfoFetcher::RenderToConsole()
 	this->FillLabelValueLine(ss, L"Memory", this->Memory().c_str());
 	ss << this->Disk();
 
+	auto t=this->GetWslVersion(L"");
+
 	auto info = ss.str();
 	r.MoveTo(38, 0);
 	r.WriteBlockString(info.c_str());
@@ -604,7 +606,7 @@ int WInfoFetcher::Execute(const TCHAR* cmd, const TCHAR* args, wstring& outputs)
 
 	SECURITY_ATTRIBUTES sa{ 0 };
 	sa.nLength = sizeof(sa);
-	sa.bInheritHandle = FALSE;
+	sa.bInheritHandle = TRUE;
 	sa.lpSecurityDescriptor = nullptr;
 	auto success=::CreatePipe(hOutputRead.put(), hOutputWrite.put(), &sa, 0);
 	if (!success) { throw hresult{ E_FAIL }; }
@@ -617,7 +619,6 @@ int WInfoFetcher::Execute(const TCHAR* cmd, const TCHAR* args, wstring& outputs)
 	if (!success) { throw hresult{ E_FAIL }; }
 
 
-
 	PROCESS_INFORMATION pi = { 0 };
 	STARTUPINFO si = { 0 };
 
@@ -625,7 +626,7 @@ int WInfoFetcher::Execute(const TCHAR* cmd, const TCHAR* args, wstring& outputs)
 	si.hStdOutput = hOutputWrite.get();
 	si.hStdError = hOutputWrite.get();
 	si.hStdInput = hInputRead.get();
-	si.dwFlags |= STARTF_USESTDHANDLES;
+	si.dwFlags = STARTF_USESTDHANDLES;
 
 	wstringstream ss;
 	ss << cmd << " " << args;
@@ -646,20 +647,15 @@ int WInfoFetcher::Execute(const TCHAR* cmd, const TCHAR* args, wstring& outputs)
 
 	ss.str(L"");
 	
-	auto size = 1024;
-	auto buffer = make_unique<BYTE[]>(size+2);	
-
-	auto fileSize = ::GetFileSize(hOutputRead.get(), nullptr);
-	
-	while(true)
+	auto size = ::GetFileSize(hOutputRead.get(), nullptr);
+	if (size > 0)
 	{
-		DWORD read = 0;
+		auto buffer = make_unique<BYTE[]>(size+2);
 		ZeroMemory(buffer.get(), size + 2);
-		success = ReadFile(hOutputRead.get(), buffer.get(), size, &read, nullptr);
-		if (!success || read == 0) break;
-
+		::ReadFile(hOutputRead.get(), buffer.get(), size, nullptr, nullptr);
 		ss << (TCHAR*)buffer.get();
 	}
+	
 	outputs = ss.str();
 	return code;
 
@@ -794,5 +790,7 @@ wstring WInfoFetcher::GetPowershellVersion(const TCHAR* shell)
 
 wstring WInfoFetcher::GetWslVersion(const TCHAR* shell)
 {
+	wstring outputs;
+	this->Execute(L"wsl.exe", L"--version", outputs);
 	return L"";
 }
