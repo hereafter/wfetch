@@ -4,3 +4,4 @@
 #pragma comment(lib, "wfetch-core.lib")
 #pragma comment(lib, "Advapi32.lib")
 #pragma comment(lib, "wbemuuid.lib")
+#pragma comment(lib, "version.lib")

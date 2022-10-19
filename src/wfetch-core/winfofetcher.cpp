@@ -3,6 +3,8 @@
 #include <chrono>
 #include <sstream>
 #include <wil/resource.h>
+#include <tlhelp32.h>
+#include <Psapi.h>
 
 using namespace std;
 using namespace std::chrono;
@@ -257,11 +259,7 @@ wstring WInfoFetcher::Packages()
 
 	return ss.str();
 }
-wstring WInfoFetcher::Shell()
-{
-	wstringstream ss;
-	return ss.str();
-}
+
 wstring WInfoFetcher::Resolution()
 {
 	vector<wstring> resolutions;
@@ -280,17 +278,74 @@ wstring WInfoFetcher::Resolution()
 	this->FillStringValues(ss, resolutions, L", ");
 	return ss.str();
 }
-wstring WInfoFetcher::Term()
+
+wstring WInfoFetcher::Shell()
 {
+	wstringstream ss;
+
+	DWORD ppid = 0;
+	auto pid=::GetCurrentProcessId();
+	unique_handle snapshot{ CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0) };
+
+	PROCESSENTRY32 pe{ 0 };
+	pe.dwSize = sizeof(pe);
+
+	auto success=Process32First(snapshot.get(), &pe);
+	if (!success) return ss.str();
+	do
+	{
+		if (pid == pe.th32ProcessID)
+		{
+			ppid = pe.th32ParentProcessID;
+			break;
+		}
+	}
+	while (Process32Next(snapshot.get(), &pe));
+
+	if (ppid == 0) return ss.str();
+	
+	unique_process_handle h{ ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, ppid) };	
+	TCHAR szFilePath[MAX_PATH] = { 0 };
+	DWORD filePathSize = MAX_PATH;
+	::QueryFullProcessImageName(h.get(), 0, szFilePath, &filePathSize);
+
+	auto fileName=::PathFindFileName(szFilePath);
+	TCHAR szFileName[MAX_PATH] = { 0 };
+	StrCpy(szFileName, fileName);
+	PathRemoveExtension(szFileName);
+	wstring fn = szFileName;
+	std::transform(fn.begin(), fn.end(), fn.begin(), ::towlower);
 	
 
+	if (CSTR_EQUAL == CompareStringOrdinal(fileName, -1, L"cmd.exe", -1, TRUE))
+	{
+		
+	}
+	else if (CSTR_EQUAL == CompareStringOrdinal(fileName, -1, L"powershell.exe", -1, TRUE))
+	{
+		
+	}
+	else if (CSTR_EQUAL == CompareStringOrdinal(fileName, -1, L"wsl.exe", -1, TRUE))
+	{
+		
+	}
 
-	wstringstream ss;
+	auto version = this->GetFileVersion(szFilePath);
+	
+	ss << fn.c_str() << " ";
+	ss << version.c_str();
 	return ss.str();
 }
-wstring WInfoFetcher::TermFont()
+
+wstring WInfoFetcher::ShellFont()
 {
+	auto h = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_FONT_INFOEX info{ 0 };
+	info.cbSize = sizeof(info);
+	::GetCurrentConsoleFontEx(h, FALSE, &info);
+	
 	wstringstream ss;
+	ss << info.FaceName;
 	return ss.str();
 }
 wstring WInfoFetcher::Cpu()
@@ -387,10 +442,8 @@ wstring WInfoFetcher::Disk()
 		ss << this->FormatDiskSize(size1);
 		ss << " / ";
 		ss << this->FormatDiskSize(size2);
-
 		ss << endl;
 	}
-
 
 	return ss.str();
 }
@@ -474,8 +527,9 @@ void WInfoFetcher::RenderToConsole()
 	this->FillLabelValueLine(ss, L"Kernel", this->Kernel().c_str());
 	this->FillLabelValueLine(ss, L"Model", this->Model().c_str());
 	this->FillLabelValueLine(ss, L"Uptime", this->Uptime().c_str());
-	//this->FillLabelValueLine(ss, L"Packages", this->Packages().c_str());
-	this->FillLabelValueLine(ss, L"Resolution:", this->Resolution().c_str());
+	this->FillLabelValueLine(ss, L"Resolution", this->Resolution().c_str());
+	this->FillLabelValueLine(ss, L"Shell", this->Shell().c_str());
+	this->FillLabelValueLine(ss, L"Shell Font", this->ShellFont().c_str());
 	this->FillLabelValueLine(ss, L"CPU:", this->Cpu().c_str());
 	this->FillLabelValueLine(ss, L"GPU:", this->Gpu().c_str());
 	this->FillLabelValueLine(ss, L"Memory:", this->Memory().c_str());
@@ -706,3 +760,23 @@ wstring WInfoFetcher::FormatMemorySize(int64_t size)
 	return ss.str();
 }
 
+wstring WInfoFetcher::GetFileVersion(const TCHAR* file)
+{
+	auto infoSize = ::GetFileVersionInfoSize(file, nullptr);
+	auto buffer = make_unique<BYTE[]>(infoSize);
+	::GetFileVersionInfo(file, 0, infoSize, buffer.get());
+
+	VS_FIXEDFILEINFO* info = nullptr;
+	UINT vsize = 0;
+
+	auto success = VerQueryValue(buffer.get(), L"\\", (LPVOID*)&info, &vsize);
+	wstringstream ss;
+	if (!success) return ss.str();
+
+	ss  << HIWORD(info->dwFileVersionMS) << "."
+		<< LOWORD(info->dwFileVersionMS) << "."
+		<< HIWORD(info->dwFileVersionLS) << "."
+		<< LOWORD(info->dwFileVersionLS);
+
+	return ss.str();
+}

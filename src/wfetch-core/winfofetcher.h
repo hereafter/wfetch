@@ -24,10 +24,9 @@ public:
 	wstring Kernel();
 	wstring Uptime();
 	wstring Packages();
-	wstring Shell();
 	wstring Resolution();
-	wstring Term();
-	wstring TermFont();
+	wstring Shell();
+	wstring ShellFont();
 	wstring Cpu();
 	wstring Gpu();
 	wstring Memory();
@@ -74,6 +73,9 @@ private:
 
 	wstring FormatDiskSize(int64_t size, int precison=0);
 	wstring FormatMemorySize(int64_t size);
+	
+	wstring GetFileVersion(const TCHAR* file);
+
 
 
 private:
