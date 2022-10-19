@@ -20,7 +20,9 @@ int main()
     WInfoFetcher fetcher;
     fetcher.RenderToConsole();
 
+#ifdef _DEBUG
     getc(stdin);
+#endif
     
     return 0;
 }

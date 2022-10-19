@@ -319,7 +319,9 @@ wstring WInfoFetcher::Shell()
 
 	if (CSTR_EQUAL == CompareStringOrdinal(fileName, -1, L"cmd.exe", -1, TRUE))
 	{
-		
+		auto version = this->GetFileVersion(szFilePath);
+		ss << fn.c_str() << " ";
+		ss << version.c_str();
 	}
 	else if (CSTR_EQUAL == CompareStringOrdinal(fileName, -1, L"powershell.exe", -1, TRUE))
 	{
@@ -327,13 +329,17 @@ wstring WInfoFetcher::Shell()
 	}
 	else if (CSTR_EQUAL == CompareStringOrdinal(fileName, -1, L"wsl.exe", -1, TRUE))
 	{
-		
+		auto version = this->GetFileVersion(szFilePath);
+		ss << fn.c_str() << " ";
+		ss << version.c_str();
 	}
-
-	auto version = this->GetFileVersion(szFilePath);
+	else
+	{
+		auto version = this->GetFileVersion(szFilePath);
+		ss << fn.c_str() << " ";
+		ss << version.c_str();
+	}
 	
-	ss << fn.c_str() << " ";
-	ss << version.c_str();
 	return ss.str();
 }
 
@@ -529,11 +535,9 @@ void WInfoFetcher::RenderToConsole()
 	this->FillLabelValueLine(ss, L"Uptime", this->Uptime().c_str());
 	this->FillLabelValueLine(ss, L"Resolution", this->Resolution().c_str());
 	this->FillLabelValueLine(ss, L"Shell", this->Shell().c_str());
-	this->FillLabelValueLine(ss, L"Shell Font", this->ShellFont().c_str());
-	this->FillLabelValueLine(ss, L"CPU:", this->Cpu().c_str());
-	this->FillLabelValueLine(ss, L"GPU:", this->Gpu().c_str());
-	this->FillLabelValueLine(ss, L"Memory:", this->Memory().c_str());
-	this->FillLabelValueLine(ss, L"Font:", this->Font().c_str());
+	this->FillLabelValueLine(ss, L"CPU", this->Cpu().c_str());
+	this->FillLabelValueLine(ss, L"GPU", this->Gpu().c_str());
+	this->FillLabelValueLine(ss, L"Memory", this->Memory().c_str());
 	ss << this->Disk();
 
 	auto info = ss.str();
@@ -762,9 +766,10 @@ wstring WInfoFetcher::FormatMemorySize(int64_t size)
 
 wstring WInfoFetcher::GetFileVersion(const TCHAR* file)
 {
-	auto infoSize = ::GetFileVersionInfoSize(file, nullptr);
+	DWORD handle = 0;
+	auto infoSize = ::GetFileVersionInfoSizeEx(FILE_VER_GET_LOCALISED, file, &handle);
 	auto buffer = make_unique<BYTE[]>(infoSize);
-	::GetFileVersionInfo(file, 0, infoSize, buffer.get());
+	::GetFileVersionInfoEx(FILE_VER_GET_LOCALISED, file, 0, infoSize, buffer.get());
 
 	VS_FIXEDFILEINFO* info = nullptr;
 	UINT vsize = 0;
@@ -773,10 +778,21 @@ wstring WInfoFetcher::GetFileVersion(const TCHAR* file)
 	wstringstream ss;
 	if (!success) return ss.str();
 
-	ss  << HIWORD(info->dwFileVersionMS) << "."
+
+	ss << HIWORD(info->dwFileVersionMS) << "."
 		<< LOWORD(info->dwFileVersionMS) << "."
 		<< HIWORD(info->dwFileVersionLS) << "."
 		<< LOWORD(info->dwFileVersionLS);
 
 	return ss.str();
+}
+
+wstring WInfoFetcher::GetPowershellVersion(const TCHAR* shell)
+{
+	return L"";
+}
+
+wstring WInfoFetcher::GetWslVersion(const TCHAR* shell)
+{
+	return L"";
 }

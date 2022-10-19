@@ -75,6 +75,8 @@ private:
 	wstring FormatMemorySize(int64_t size);
 	
 	wstring GetFileVersion(const TCHAR* file);
+	wstring GetPowershellVersion(const TCHAR* shell);
+	wstring GetWslVersion(const TCHAR* shell);
 
 
 
