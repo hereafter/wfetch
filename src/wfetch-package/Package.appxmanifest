@@ -7,13 +7,13 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="d898889f-43b3-4c7c-abc2-918c9a571054"
-    Publisher="CN=hereafter"
+    Name="25510Hereafter2.wfetch"
+    Publisher="CN=61AA0D33-CF4F-46A5-93A4-EE3200B3B4BD"
     Version="1.0.0.0" />
 
   <Properties>
-    <DisplayName>wfetch-package</DisplayName>
-    <PublisherDisplayName>hereafter</PublisherDisplayName>
+    <DisplayName>wfetch</DisplayName>
+    <PublisherDisplayName>Hereafter2</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
   </Properties>
 
@@ -31,7 +31,7 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="wfetch-package"
+        DisplayName="wfetch"
         Description="wfetch-package"
         BackgroundColor="transparent"
         Square150x150Logo="Images\Square150x150Logo.png"

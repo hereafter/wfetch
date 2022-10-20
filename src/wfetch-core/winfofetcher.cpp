@@ -321,18 +321,7 @@ wstring WInfoFetcher::Shell()
 	wstring fn = szFileName;
 	std::transform(fn.begin(), fn.end(), fn.begin(), ::towlower);
 	
-
-	if (CSTR_EQUAL == CompareStringOrdinal(fileName, -1, L"cmd.exe", -1, TRUE))
-	{
-		auto version = this->GetFileVersion(szFilePath);
-		ss << fn.c_str() << " ";
-		ss << version.c_str();
-	}
-	else if (CSTR_EQUAL == CompareStringOrdinal(fileName, -1, L"powershell.exe", -1, TRUE))
-	{
-		
-	}
-	else if (CSTR_EQUAL == CompareStringOrdinal(fileName, -1, L"wsl.exe", -1, TRUE))
+	if (CSTR_EQUAL == CompareStringOrdinal(fileName, -1, L"wsl.exe", -1, TRUE))
 	{
 		auto version = this->GetFileVersion(szFilePath);
 		ss << fn.c_str() << " ";
