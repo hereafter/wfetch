@@ -8,6 +8,7 @@
 #include <VersionHelpers.h>
 #include <regex>
 
+
 using namespace std;
 using namespace std::chrono;
 using namespace wil;
@@ -536,9 +537,6 @@ void WInfoFetcher::RenderToConsole()
 	this->FillLabelValueLine(ss, L"GPU", this->Gpu().c_str());
 	this->FillLabelValueLine(ss, L"Memory", this->Memory().c_str());
 	ss << this->Disk();
-
-	auto t=this->GetWslVersion(L"");
-
 	auto info = ss.str();
 	r.MoveTo(38, 0);
 	r.WriteBlockString(info.c_str());
