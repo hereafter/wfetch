@@ -512,6 +512,7 @@ BAIL:
 
 void WInfoFetcher::RenderToConsole()
 {
+	SetConsoleOutputCP(CP_UTF8);
 	auto&& r = _renderBuffer;
 	r.Clear();
 
@@ -541,6 +542,7 @@ void WInfoFetcher::RenderToConsole()
 	r.MoveTo(38, 0);
 	r.WriteBlockString(info.c_str());
 
+	r.RenderToDebug();
 	r.RenderToConsole();
 }
 

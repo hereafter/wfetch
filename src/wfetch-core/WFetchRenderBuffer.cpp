@@ -426,7 +426,7 @@ void WFetchRenderBuffer::RenderToConsole()
 			continue;
 		}
 
-		//fill in gaps
+		//fill in gaps 
 		while (gaps > 0)
 		{
 			wcout << endl;
@@ -440,7 +440,7 @@ void WFetchRenderBuffer::RenderToConsole()
 			auto&& info = _infos[o++];
 			auto v = info.Read();
 
-			if (info.IsColorChanging())
+			if (info.IsColorChanging() || false)
 			{
 				auto fc = info.ForegroundColor();
 				auto bc = info.BackgroundColor();
