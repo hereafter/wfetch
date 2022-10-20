@@ -24,6 +24,7 @@ public:
 	void SetForegroundColor(int8_t c);
 	void SetBackgroundColor(int8_t c);
 	void ResetColors();
+	void SetColors(vector<int>& fcs, vector<int>& bcs);
 
 	TCHAR ReadChar();
 	void WriteChar(TCHAR value);

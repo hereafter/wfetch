@@ -66,6 +66,8 @@ private:
 
 private:
 	void DetectCurrentOS();
+	void LoadColorProfiles();
+
 	void FillStringValues(wstringstream& ss, 
 		vector<CComVariant> const& values,
 		const TCHAR* seperator = L" ");

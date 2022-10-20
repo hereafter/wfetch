@@ -18,8 +18,7 @@ using namespace winrt::Windows::System;
 
 #pragma region Logos
 constexpr const TCHAR* kWindows11LogoASCII = L""
-"${c1}\n"
-"################  ################\n"
+"${c1}################  ################\n"
 "################  ################\n"
 "################  ################\n"
 "################  ################\n"
@@ -58,6 +57,7 @@ constexpr const TCHAR* kWindows10LogoASCII = L""
 "                                 ``\n";
 
 constexpr const TCHAR* kWindowsLogoASCII=L""
+"${c3}{3=*^```\"*4E3)${c4} ;EEEtttt:::::tZ`\n"
 "${c1}        ,.=:!!t3Z3z.,\n"
 "       :tt:::tt333EE3\n"
 "${c1}       Et:::ztt33EEEL${c2} @Ee.,      ..,\n"
@@ -129,7 +129,9 @@ wstring WInfoFetcher::Underline(int count)
 
 wstring WInfoFetcher::Logo()
 {
-	return kWindows11LogoASCII;
+	if (_currentOS == WFetchSupportedOS::Windows11) return kWindows11LogoASCII;
+	if (_currentOS == WFetchSupportedOS::Windows10) return kWindows10LogoASCII;
+	return kWindowsLogoASCII;
 }
 wstring WInfoFetcher::Distro()
 {
@@ -491,8 +493,10 @@ wstring WInfoFetcher::Colors()
 
 HRESULT WInfoFetcher::Initialize()
 {
-	this->DetectCurrentOS();
 	if (_wbemServices != nullptr) return S_FALSE;
+
+	this->DetectCurrentOS();
+	this->LoadColorProfiles();
 
 	HRESULT hr = NOERROR;
 	auto locator = create_instance<IWbemLocator>(CLSID_WbemLocator);
@@ -813,6 +817,9 @@ wstring WInfoFetcher::GetWslVersion(const TCHAR* shell)
 
 void WInfoFetcher::DetectCurrentOS()
 {
+	_currentOS = WFetchSupportedOS::WindowsOthers;
+	return;
+
 	using namespace std::regex_constants;
 	wstring outputs;
 	this->Execute(L"cmd.exe", L"/u /c ver", outputs);
@@ -847,4 +854,39 @@ void WInfoFetcher::DetectCurrentOS()
 	{
 		_currentOS = WFetchSupportedOS::WindowsOthers;
 	}
+}
+
+void WInfoFetcher::LoadColorProfiles()
+{
+
+	// 1 blue 2 green 4 red
+	// 6 yellow 
+
+	vector<int> colors1, colors2;
+	colors1.push_back(0);
+	colors2.push_back(0);
+	for (int i = 1; i < 16; i++)
+	{
+		colors1.push_back(i);
+		colors2.push_back(0x0010 + i);
+	}
+
+	switch (_currentOS)
+	{
+	case WFetchSupportedOS::Windows11:
+		colors1[1] = 3;
+		colors1[3] = 1;
+		break;
+	case WFetchSupportedOS::Windows10:
+		colors1[1] = 3;
+		colors1[3] = 1;
+		break;
+	case WFetchSupportedOS::WindowsOthers:
+	default:
+		colors1[1] = 1; colors1[2] = 2;
+		colors1[3] = 6; colors1[4] = 4;
+		break;
+	}
+
+	_renderBuffer.SetColors(colors1, colors2);
 }

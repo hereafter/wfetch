@@ -1,13 +1,5 @@
 ﻿#include "pch.h"
-
-#include <regex>
-#include <map>
-#include <concrt.h>
-
 #include "WInfoFetcher.h"
-
-#include <stdio.h>
-
 
 using namespace winrt;
 using namespace winrt::Windows::Foundation;
@@ -19,10 +11,6 @@ int main()
  
     WInfoFetcher fetcher;
     fetcher.RenderToConsole();
-
-#ifdef _DEBUG
-    getc(stdin);
-#endif
     
     return 0;
 }

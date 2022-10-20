@@ -32,9 +32,10 @@ WFetchRenderBuffer::WFetchRenderBuffer(int cols, int rows):
 	_infos = infos;
 	_values = values;
 
+	//1 blue 2 green 4 red
 	map<wstring, int> colors1 = 
 	{
-		{L"c0", 0},  {L"c1", 3},  {L"c2", 2},  {L"c3", 3},
+		{L"c0", 0},  {L"c1", 1},  {L"c2", 2},  {L"c3", 6},
 		{L"c4", 4},  {L"c5", 5},  {L"c6", 6},  {L"c7", 7},
 		{L"c8", 8},  {L"c9", 9},  {L"ca", 10}, {L"cb", 11}, 
 		{L"cc", 12}, {L"cd", 13}, {L"ce", 14}, {L"cf", 15}
@@ -160,6 +161,7 @@ void WFetchRenderBuffer::WriteString(const TCHAR* value)
 			if (ch == _T('}'))
 			{
 				controls = false;
+				dollar = false;
 				colors = ss.str();
 				this->ProcessColors(colors);
 				ss.str(L"");
@@ -233,6 +235,7 @@ void WFetchRenderBuffer::WriteBlockString(const TCHAR* value)
 			if (ch == _T('}'))
 			{
 				controls = false;
+				dollar = false;
 				colors = ss.str();
 				this->ProcessColors(colors);
 
@@ -309,6 +312,30 @@ void WFetchRenderBuffer::ResetColors()
 	if (info == nullptr) return;
 	info->BackgroundColor(-1);
 	info->ForegroundColor(-1);
+}
+
+void WFetchRenderBuffer::SetColors(vector<int>& fcs, vector<int>& bcs)
+{
+	map<wstring, int> colors1;
+	map<wstring, int> colors2;
+
+	int index = 0;
+	wstringstream ss;
+	for (auto c : fcs)
+	{
+		ss.str(L""); ss << "c"<< index++;
+		colors1[ss.str()] = c;
+	}
+
+	index = 0;
+	for (auto c : bcs)
+	{
+		ss.str(L""); ss << "b" << index++;
+		colors2[ss.str()] = c;
+	}
+
+	_foregroundColors = colors1;
+	_backgroundColors = colors2;
 }
 
 void WFetchRenderBuffer::ProcessColors(wstring const& controls)
@@ -391,8 +418,6 @@ void WFetchRenderBuffer::RenderToConsole()
 	auto rows = _rows;
 	auto cols = _columns;
 
-	
-
 	for (int r = 0; r < rows; r++)
 	{
 		if (this->IsRowEmpty(r))
@@ -447,6 +472,8 @@ void WFetchRenderBuffer::RenderToConsole()
 		wcout << endl;
 	}
 
+	auto h = ::GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(h, _defaultColor);
 }
 
 
