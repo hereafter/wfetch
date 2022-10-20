@@ -28,7 +28,7 @@ int main()
     
     if (noshell)
     {
-        wcout << endl << "Press any key to continue...";
+        cout << endl << "Press any key to continue...";
         while (!_kbhit())
         {
             Sleep(10);

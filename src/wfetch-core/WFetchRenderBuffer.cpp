@@ -2,6 +2,7 @@
 #include "WFetchRenderBuffer.h"
 #include <iostream>
 #include <sstream>
+#include <atlstr.h>
 
 WFetchRenderBuffer::WFetchRenderBuffer():
 	WFetchRenderBuffer(255, 100)
@@ -429,12 +430,13 @@ void WFetchRenderBuffer::RenderToConsole()
 		//fill in gaps 
 		while (gaps > 0)
 		{
-			wcout << endl;
+			cout << endl;
 			gaps--;
 		}
 
 		auto o = r * cols;
 		auto leadings = 0;
+		TCHAR tmp[2] = { 0 };
 		for (int c = 0; c < cols; c++)
 		{
 			auto&& info = _infos[o++];
@@ -462,14 +464,15 @@ void WFetchRenderBuffer::RenderToConsole()
 			
 			while (leadings > 0)
 			{
-				wcout << L' ';
+				cout << ' ';
 				leadings--;
-			}
+			}			
 
-			wcout << v;
+			tmp[0] = v;
+			cout << CW2A(tmp, CP_UTF8).m_psz;
 		}
 
-		wcout << endl;
+		cout << endl;
 	}
 
 	auto h = ::GetStdHandle(STD_OUTPUT_HANDLE);
