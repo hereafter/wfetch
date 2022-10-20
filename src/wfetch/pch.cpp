@@ -5,3 +5,4 @@
 #pragma comment(lib, "Advapi32.lib")
 #pragma comment(lib, "wbemuuid.lib")
 #pragma comment(lib, "version.lib")
+#pragma comment(lib, "Shlwapi.lib")
