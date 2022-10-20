@@ -5,6 +5,8 @@
 #include <wil/resource.h>
 #include <tlhelp32.h>
 #include <Psapi.h>
+#include <VersionHelpers.h>
+#include <regex>
 
 using namespace std;
 using namespace std::chrono;
@@ -75,11 +77,13 @@ constexpr const TCHAR* kWindowsLogoASCII=L""
 
 #pragma endregion
 
-WInfoFetcher::WInfoFetcher()
+WInfoFetcher::WInfoFetcher():
+	_currentOS(WFetchSupportedOS::WindowsOthers)
 {
 	HRESULT hr=this->Initialize();
 	if (FAILED(hr)) winrt::throw_hresult({ hr });
 }
+
 WInfoFetcher::~WInfoFetcher()
 {}
 
@@ -487,6 +491,7 @@ wstring WInfoFetcher::Colors()
 
 HRESULT WInfoFetcher::Initialize()
 {
+	this->DetectCurrentOS();
 	if (_wbemServices != nullptr) return S_FALSE;
 
 	HRESULT hr = NOERROR;
@@ -626,7 +631,8 @@ int WInfoFetcher::Execute(const TCHAR* cmd, const TCHAR* args, wstring& outputs)
 	si.hStdOutput = hOutputWrite.get();
 	si.hStdError = hOutputWrite.get();
 	si.hStdInput = hInputRead.get();
-	si.dwFlags = STARTF_USESTDHANDLES;
+	si.wShowWindow = SW_HIDE;
+	si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
 
 	wstringstream ss;
 	ss << cmd << " " << args;
@@ -638,7 +644,7 @@ int WInfoFetcher::Execute(const TCHAR* cmd, const TCHAR* args, wstring& outputs)
 
 	unique_handle process{ pi.hProcess };
 	unique_handle thread { pi.hThread };
-
+	
 
 	::WaitForSingleObject(pi.hProcess, INFINITE);
 
@@ -652,7 +658,8 @@ int WInfoFetcher::Execute(const TCHAR* cmd, const TCHAR* args, wstring& outputs)
 	{
 		auto buffer = make_unique<BYTE[]>(size+2);
 		ZeroMemory(buffer.get(), size + 2);
-		::ReadFile(hOutputRead.get(), buffer.get(), size, nullptr, nullptr);
+		DWORD read = 0;
+		::ReadFile(hOutputRead.get(), buffer.get(), size, &read, nullptr);
 		ss << (TCHAR*)buffer.get();
 	}
 	
@@ -790,7 +797,54 @@ wstring WInfoFetcher::GetPowershellVersion(const TCHAR* shell)
 
 wstring WInfoFetcher::GetWslVersion(const TCHAR* shell)
 {
+	wstringstream ss;
 	wstring outputs;
-	this->Execute(L"wsl.exe", L"--version", outputs);
-	return L"";
+	int code=this->Execute(L"wsl.exe", L"--version", outputs);
+	if (code != 0 || outputs.empty()) { return ss.str(); }
+
+	auto p1 = outputs.find(L':');
+	auto p2 = outputs.find(L'\r');
+
+	wstring v = outputs.substr(p1+1, p2 - p1-1);
+	ss << v.c_str();
+	return ss.str();
+}
+
+
+void WInfoFetcher::DetectCurrentOS()
+{
+	using namespace std::regex_constants;
+	wstring outputs;
+	this->Execute(L"cmd.exe", L"/u /c ver", outputs);
+
+	wregex rx{ L"(\\d*)\\.(\\d*)\\.(\\d*)\\.(\\d*)" };
+	wsmatch m{};
+	auto success=std::regex_search(outputs, m, rx);
+
+	if (m.size() != 5) 
+	{
+		_currentOS = WFetchSupportedOS::WindowsOthers;
+		return;
+	}
+
+	auto major = stoi(m[1].str());
+	auto minor = stoi(m[2].str());
+	auto build = stoi(m[3].str());
+	auto patch = stoi(m[4].str());
+
+	if (major == 10)
+	{
+		if (build >= 22000)
+		{
+			_currentOS = WFetchSupportedOS::Windows11;
+		}
+		else
+		{
+			_currentOS = WFetchSupportedOS::Windows10;
+		}
+	}
+	else
+	{
+		_currentOS = WFetchSupportedOS::WindowsOthers;
+	}
 }

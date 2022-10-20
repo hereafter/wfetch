@@ -7,6 +7,13 @@
 using namespace std;
 using namespace winrt;
 
+enum class WFetchSupportedOS: int
+{
+	Windows10=0,
+	Windows11=1,
+	WindowsOthers=255,
+};
+
 class WInfoFetcher
 {
 public:
@@ -58,6 +65,7 @@ private:
 	wstring HostName();
 
 private:
+	void DetectCurrentOS();
 	void FillStringValues(wstringstream& ss, 
 		vector<CComVariant> const& values,
 		const TCHAR* seperator = L" ");
@@ -83,4 +91,5 @@ private:
 private:
 	com_ptr<IWbemServices> _wbemServices;
 	WFetchRenderBuffer _renderBuffer;
+	WFetchSupportedOS _currentOS;
 };
