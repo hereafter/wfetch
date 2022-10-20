@@ -57,7 +57,6 @@ constexpr const TCHAR* kWindows10LogoASCII = L""
 "                                 ``\n";
 
 constexpr const TCHAR* kWindowsLogoASCII=L""
-"${c3}{3=*^```\"*4E3)${c4} ;EEEtttt:::::tZ`\n"
 "${c1}        ,.=:!!t3Z3z.,\n"
 "       :tt:::tt333EE3\n"
 "${c1}       Et:::ztt33EEEL${c2} @Ee.,      ..,\n"
@@ -817,9 +816,6 @@ wstring WInfoFetcher::GetWslVersion(const TCHAR* shell)
 
 void WInfoFetcher::DetectCurrentOS()
 {
-	_currentOS = WFetchSupportedOS::WindowsOthers;
-	return;
-
 	using namespace std::regex_constants;
 	wstring outputs;
 	this->Execute(L"cmd.exe", L"/u /c ver", outputs);
@@ -883,8 +879,8 @@ void WInfoFetcher::LoadColorProfiles()
 		break;
 	case WFetchSupportedOS::WindowsOthers:
 	default:
-		colors1[1] = 1; colors1[2] = 2;
-		colors1[3] = 6; colors1[4] = 4;
+		colors1[1] = 4; colors1[2] = 2;
+		colors1[3] = 1; colors1[4] = 6;
 		break;
 	}
 
