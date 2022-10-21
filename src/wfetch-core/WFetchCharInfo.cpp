@@ -2,15 +2,14 @@
 #include "WFetchCharInfo.h"
 
 WFetchCharInfo::WFetchCharInfo() :
-	_x(-1), _y(-1),
-	_fc(-1), _bc(-1),
+	_x(-1), _y(-1),_c(-1),
 	_value(nullptr)
 {}
 
 WFetchCharInfo::WFetchCharInfo(int x, int y,
-	int8_t fc, int8_t bc, 
+	uint16_t c,
 	TCHAR* pv):
-	_x(x), _y(y), _fc(fc), _bc(bc),
+	_x(x), _y(y), _c(c),
 	_value(pv)
 {}
 
@@ -51,28 +50,19 @@ void WFetchCharInfo::Value(TCHAR* value)
 
 bool WFetchCharInfo::IsColorChanging() const
 {
-	return _fc >= 0 || _bc >= 0;
+	return _c != 0xff;
 }
 
-int8_t WFetchCharInfo::ForegroundColor() const
+uint16_t WFetchCharInfo::Color() const
 {
-	return _fc;
+	return _c;
 }
 
-void WFetchCharInfo::ForegroundColor(int8_t value)
+void WFetchCharInfo::Color(uint16_t value)
 {
-	_fc = value;
+	_c = value;
 }
 
-int8_t WFetchCharInfo::BackgroundColor() const
-{
-	return _bc;
-}
-
-void WFetchCharInfo::BackgroundColor(int8_t value)
-{
-	_bc = value;
-}
 
 TCHAR WFetchCharInfo::Read()
 {

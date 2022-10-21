@@ -7,7 +7,7 @@ class WFetchCharInfo
 public:
 	WFetchCharInfo();
 	WFetchCharInfo(int x, int y, 
-		int8_t fc, int8_t bc, 
+		uint16_t c,
 		TCHAR* pv);
 
 	~WFetchCharInfo();
@@ -23,15 +23,12 @@ public:
 	void Write(TCHAR v);
 
 	bool IsColorChanging() const;
-	int8_t ForegroundColor() const;
-	void ForegroundColor(int8_t value);
-	int8_t BackgroundColor() const;
-	void BackgroundColor(int8_t value);
+	uint16_t Color() const;
+	void Color(uint16_t value);
 
 private:
 	int32_t _x;
 	int32_t _y;
-	int8_t _fc;
-	int8_t _bc;
+	uint16_t _c;
 	TCHAR* _value;
 };

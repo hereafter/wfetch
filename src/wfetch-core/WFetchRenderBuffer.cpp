@@ -34,7 +34,7 @@ WFetchRenderBuffer::WFetchRenderBuffer(int cols, int rows):
 	_values = values;
 
 	//1 blue 2 green 4 red
-	map<wstring, int> colors1 = 
+	map<wstring, uint16_t> colors1 =
 	{
 		{L"c0", 0},  {L"c1", 1},  {L"c2", 2},  {L"c3", 6},
 		{L"c4", 4},  {L"c5", 5},  {L"c6", 6},  {L"c7", 7},
@@ -42,16 +42,7 @@ WFetchRenderBuffer::WFetchRenderBuffer(int cols, int rows):
 		{L"cc", 12}, {L"cd", 13}, {L"ce", 14}, {L"cf", 15}
 	};
 
-	map<wstring, int> colors2 =
-	{
-		{L"b0",        0},  {L"b1", 0x0010+1},  {L"b2", 0x0010+2},  {L"b3", 0x0010+3},
-		{L"b4", 0x0010+4},  {L"b5", 0x0010+5},  {L"b6", 0x0010+6},  {L"b7", 0x0010+7},
-		{L"b8", 0x0010+8},  {L"b9", 0x0010+9},  {L"ba", 0x0010+10}, {L"bb", 0x0010+11},
-		{L"bc", 0x0010+12}, {L"bd", 0x0010+13}, {L"be", 0x0010+14}, {L"bf", 0x0010+15}
-	};
-
-	_foregroundColors = colors1;
-	_backgroundColors = colors2;
+	_colors = colors1;
 
 	auto h = ::GetStdHandle(STD_OUTPUT_HANDLE);
 	if (h != nullptr)
@@ -62,7 +53,7 @@ WFetchRenderBuffer::WFetchRenderBuffer(int cols, int rows):
 	}
 	else
 	{
-		_defaultColor = 0;
+		_defaultColor = 0x07;
 	}
 
 }
@@ -90,8 +81,7 @@ void WFetchRenderBuffer::Clear()
 	for (int i = 0; i < size; i++)
 	{
 		auto&& info = _infos[i];
-		info.BackgroundColor(-1);
-		info.ForegroundColor(-1);
+		info.Color(-1);
 	}
 }
 
@@ -293,50 +283,64 @@ void WFetchRenderBuffer::WriteBlockString(const TCHAR* value)
 	}
 }
 
-void WFetchRenderBuffer::SetForegroundColor(int8_t c)
+
+void WFetchRenderBuffer::WriteColorPalette(int x, int y)
 {
-	auto info = this->GetCurrentCharInfo();
-	if (info == nullptr) return;
-	info->ForegroundColor(c);
+	this->MoveTo(x, y);
+	uint16_t o = 0;
+	this->WriteColorPaletteCell(o + 0x00);
+	this->WriteColorPaletteCell(o + 0x40);
+	this->WriteColorPaletteCell(o + 0x20);
+	this->WriteColorPaletteCell(o + 0x60);
+	this->WriteColorPaletteCell(o + 0x10);
+	this->WriteColorPaletteCell(o + 0x50);
+	this->WriteColorPaletteCell(o + 0x30);
+	this->WriteColorPaletteCell(o + 0x70);
+	
+	this->MoveTo(x, y+1);
+	this->WriteColorPaletteCell(o + 0x00);
+	this->WriteColorPaletteCell(o + 0x40);
+	this->WriteColorPaletteCell(o + 0x20);
+	this->WriteColorPaletteCell(o + 0x60);
+	this->WriteColorPaletteCell(o + 0x10);
+	this->WriteColorPaletteCell(o + 0x50);
+	this->WriteColorPaletteCell(o + 0x30);
+	this->WriteColorPaletteCell(o + 0x70);
 }
 
-void WFetchRenderBuffer::SetBackgroundColor(int8_t c)
+void WFetchRenderBuffer::WriteColorPaletteCell(uint16_t color)
+{
+	this->SetColor(color);
+	this->WriteString(L"   ");
+}
+
+void WFetchRenderBuffer::SetColor(uint16_t c)
 {
 	auto info = this->GetCurrentCharInfo();
 	if (info == nullptr) return;
-	info->BackgroundColor(c);
+	info->Color(c);
 }
+
 
 void WFetchRenderBuffer::ResetColors()
 {
 	auto info = this->GetCurrentCharInfo();
 	if (info == nullptr) return;
-	info->BackgroundColor(-1);
-	info->ForegroundColor(-1);
+	info->Color(0xff);
 }
 
-void WFetchRenderBuffer::SetColors(vector<int>& fcs, vector<int>& bcs)
+void WFetchRenderBuffer::SetColors(vector<uint16_t>& colors)
 {
-	map<wstring, int> colors1;
-	map<wstring, int> colors2;
+	map<wstring, uint16_t> colors1;
 
 	int index = 0;
 	wstringstream ss;
-	for (auto c : fcs)
+	for (auto c : colors)
 	{
 		ss.str(L""); ss << "c"<< index++;
 		colors1[ss.str()] = c;
 	}
-
-	index = 0;
-	for (auto c : bcs)
-	{
-		ss.str(L""); ss << "b" << index++;
-		colors2[ss.str()] = c;
-	}
-
-	_foregroundColors = colors1;
-	_backgroundColors = colors2;
+	_colors = colors1;
 }
 
 void WFetchRenderBuffer::ProcessColors(wstring const& controls)
@@ -345,18 +349,11 @@ void WFetchRenderBuffer::ProcessColors(wstring const& controls)
 	if (info == nullptr) return;
 
 	auto&& k = controls;
-	auto&& colors1 = _foregroundColors;
-	auto v1 = colors1.find(k);
-	if (v1 != colors1.end())
+	auto&& colors = _colors;
+	auto v1 = colors.find(k);
+	if (v1 != colors.end())
 	{
-		info->ForegroundColor(v1->second);
-	}
-
-	auto&& colors2 = _backgroundColors;
-	auto v2 = colors2.find(k);
-	if (v2 != colors2.end()) 
-	{
-		info->BackgroundColor(v2->second);
+		info->Color(v1->second);
 	}
 }
 
@@ -412,6 +409,8 @@ void WFetchRenderBuffer::RenderToDebug()
 	}
 }
 
+
+
 void WFetchRenderBuffer::RenderToConsole()
 {
 	auto gaps = 0;
@@ -444,21 +443,11 @@ void WFetchRenderBuffer::RenderToConsole()
 
 			if (info.IsColorChanging())
 			{
-				auto fc = info.ForegroundColor();
-				auto bc = info.BackgroundColor();
-				if (bc <= 0)
+				auto c = info.Color();
+				if (c == 0)
 				{
-					bc = _defaultColor & 0xf0;
+					c = _defaultColor;
 				}
-
-				if (fc <= 0)
-				{
-					fc = _defaultColor & 0x0f;
-				}
-
-				auto c = 0;
-				if (fc > 0) c += fc;
-				if (bc > 0) c += bc;
 				auto h = ::GetStdHandle(STD_OUTPUT_HANDLE);
 				SetConsoleTextAttribute(h, c);
 			}

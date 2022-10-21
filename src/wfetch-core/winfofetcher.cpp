@@ -539,10 +539,11 @@ void WInfoFetcher::RenderToConsole()
 	this->FillLabelValueLine(ss, L"Memory", this->Memory().c_str());
 	ss << this->Disk();
 	auto info = ss.str();
-	r.MoveTo(38, 0);
+	r.MoveTo(39, 0);
 	r.WriteBlockString(info.c_str());
 
-	r.RenderToDebug();
+	r.WriteColorPalette(39, r.CursorY() + 2);
+
 	r.RenderToConsole();
 }
 
@@ -847,13 +848,11 @@ void WInfoFetcher::LoadColorProfiles()
 	// 1 blue 2 green 4 red
 	// 6 yellow 
 
-	vector<int> colors1, colors2;
+	vector<uint16_t> colors1;
 	colors1.push_back(0);
-	colors2.push_back(0);
 	for (int i = 1; i < 16; i++)
 	{
 		colors1.push_back(i);
-		colors2.push_back(0x0010 + i);
 	}
 
 	switch (_currentOS)
@@ -873,5 +872,5 @@ void WInfoFetcher::LoadColorProfiles()
 		break;
 	}
 
-	_renderBuffer.SetColors(colors1, colors2);
+	_renderBuffer.SetColors(colors1);
 }

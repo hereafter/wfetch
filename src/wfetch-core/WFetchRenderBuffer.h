@@ -21,15 +21,16 @@ public:
 	void MoveToNextCharacter();
 	void MoveToLineBegin();
 	void MoveToNextLine();
-	void SetForegroundColor(int8_t c);
-	void SetBackgroundColor(int8_t c);
+	void SetColor(uint16_t c);
 	void ResetColors();
-	void SetColors(vector<int>& fcs, vector<int>& bcs);
+	void SetColors(vector<uint16_t>& colors);
 
 	TCHAR ReadChar();
 	void WriteChar(TCHAR value);
 	void WriteString(const TCHAR* value);
 	void WriteBlockString(const TCHAR* value);
+	void WriteColorPalette(int x, int y);
+	void WriteColorPaletteCell(uint16_t color);
 	
 public:
 	void RenderToDebug();
@@ -54,8 +55,7 @@ private:
 	shared_ptr<WFetchCharInfo[]> _infos;
 	shared_ptr<TCHAR[]> _values;
 
-	map<wstring, int> _foregroundColors;
-	map<wstring, int> _backgroundColors;
-	int _defaultColor;
+	map<wstring, uint16_t> _colors;
+	uint16_t _defaultColor;
 };
 
