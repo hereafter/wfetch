@@ -457,11 +457,21 @@ void WFetchRenderBuffer::RenderToConsole()
 					leadings--;
 				}
 			}
-					
-
+			
 			if (info.IsColorChanging())
 			{
 				auto c = info.Color();
+
+				if ((c & 0xf0) == 0)
+				{
+					c |= (_defaultColor & 0xf0);
+				}
+
+				if ((c & 0x0f) == 0)
+				{
+					c |= (_defaultColor & 0x0f);
+				}
+
 				if (c == 0)
 				{
 					c = _defaultColor;
