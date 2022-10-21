@@ -12,7 +12,7 @@
   <Identity
     Name="25510Hereafter2.wfetch"
     Publisher="CN=61AA0D33-CF4F-46A5-93A4-EE3200B3B4BD"
-    Version="1.0.0.0" />
+    Version="1.0.1.0" />
 
   <Properties>
     <DisplayName>wfetch</DisplayName>
