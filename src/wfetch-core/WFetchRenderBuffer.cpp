@@ -442,17 +442,24 @@ void WFetchRenderBuffer::RenderToConsole()
 			auto&& info = _infos[o++];
 			auto v = info.Read();
 
-			if (info.IsColorChanging() || false)
+			if (info.IsColorChanging())
 			{
 				auto fc = info.ForegroundColor();
 				auto bc = info.BackgroundColor();
+				if (bc <= 0)
+				{
+					bc = _defaultColor & 0xf0;
+				}
+
+				if (fc <= 0)
+				{
+					fc = _defaultColor & 0x0f;
+				}
 
 				auto c = 0;
 				if (fc > 0) c += fc;
 				if (bc > 0) c += bc;
 				auto h = ::GetStdHandle(STD_OUTPUT_HANDLE);
-
-				if (c == 0) c = _defaultColor;
 				SetConsoleTextAttribute(h, c);
 			}
 
