@@ -298,6 +298,7 @@ void WFetchRenderBuffer::WriteColorPalette(int x, int y)
 	this->WriteColorPaletteCell(o + 0x70);
 	
 	this->MoveTo(x, y+1);
+	o = 0x80;
 	this->WriteColorPaletteCell(o + 0x00);
 	this->WriteColorPaletteCell(o + 0x40);
 	this->WriteColorPaletteCell(o + 0x20);
@@ -409,8 +410,6 @@ void WFetchRenderBuffer::RenderToDebug()
 	}
 }
 
-
-
 void WFetchRenderBuffer::RenderToConsole()
 {
 	auto gaps = 0;
@@ -441,6 +440,25 @@ void WFetchRenderBuffer::RenderToConsole()
 			auto&& info = _infos[o++];
 			auto v = info.Read();
 
+			if (v == 0)
+			{
+				leadings++;
+				continue;
+			}
+			
+			if (leadings > 0)
+			{
+				auto h = ::GetStdHandle(STD_OUTPUT_HANDLE);
+				SetConsoleTextAttribute(h, _defaultColor);
+
+				while (leadings > 0)
+				{
+					cout << ' ';
+					leadings--;
+				}
+			}
+					
+
 			if (info.IsColorChanging())
 			{
 				auto c = info.Color();
@@ -451,19 +469,7 @@ void WFetchRenderBuffer::RenderToConsole()
 				auto h = ::GetStdHandle(STD_OUTPUT_HANDLE);
 				SetConsoleTextAttribute(h, c);
 			}
-
-			if (v == 0)
-			{
-				leadings++;
-				continue;
-			}
 			
-			while (leadings > 0)
-			{
-				cout << ' ';
-				leadings--;
-			}			
-
 			tmp[0] = v;
 			cout << CW2A(tmp, CP_UTF8).m_psz;
 		}

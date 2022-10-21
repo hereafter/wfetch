@@ -542,7 +542,7 @@ void WInfoFetcher::RenderToConsole()
 	r.MoveTo(39, 0);
 	r.WriteBlockString(info.c_str());
 
-	r.WriteColorPalette(39, r.CursorY() + 2);
+	r.WriteColorPalette(39, r.CursorY() + 1);
 
 	r.RenderToConsole();
 }

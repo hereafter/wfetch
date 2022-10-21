@@ -88,8 +88,6 @@ private:
 	wstring GetPowershellVersion(const TCHAR* shell);
 	wstring GetWslVersion(const TCHAR* shell);
 
-
-
 private:
 	com_ptr<IWbemServices> _wbemServices;
 	WFetchRenderBuffer _renderBuffer;
