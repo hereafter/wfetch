@@ -434,8 +434,14 @@ wstring WInfoFetcher::Disk()
 	for (size_t i = 0; i < count; i++)
 	{
 		int offset = i * 3;
+
+		if (values[offset + 1].bstrVal == nullptr ||
+			values[offset + 2].bstrVal == nullptr) continue;
+
 		ss << "${c1}Disk " << values[offset].bstrVal;
 		ss << " ${c0}";
+
+		
 
 		auto size1 = stoll(values[offset + 1].bstrVal);
 		auto size2 = stoll(values[offset + 2].bstrVal);
